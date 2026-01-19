@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Posts on Vince</title>
+        <link>https://Uchiha1024.github.io/post/</link>
+        <description>Recent content in Posts on Vince</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <copyright>Vince</copyright>
+        <lastBuildDate>Mon, 19 Jan 2026 16:55:18 +0800</lastBuildDate><atom:link href="https://Uchiha1024.github.io/post/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Test Post</title>
+        <link>https://Uchiha1024.github.io/p/test-post/</link>
+        <pubDate>Mon, 19 Jan 2026 16:55:18 +0800</pubDate>
+        
+        <guid>https://Uchiha1024.github.io/p/test-post/</guid>
+        <description></description>
+        </item>
+        
+    </channel>
+</rss>
