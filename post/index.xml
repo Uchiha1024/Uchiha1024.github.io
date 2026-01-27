@@ -198,12 +198,16 @@ IPFS 用来存储 Subgraph 的代码、ABI 文件、schema 文件等静态内容
 	
 &gt;&lt;/p&gt;
 &lt;h2 id=&#34;本地部署-graph-节点&#34;&gt;本地部署 Graph 节点
-&lt;/h2&gt;&lt;p&gt;• 完全本地运行（PostgreSQL + IPFS + Graph Node）
-• 不依赖官方网络
-• 更适合：
-• 👨‍💻 本地开发调试子图
-• 🧪 针对测试链或私链部署索引器
-• 🕵️‍♀️ 自定义数据抓取需求&lt;/p&gt;
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;完全本地运行（PostgreSQL + IPFS + Graph Node）&lt;/li&gt;
+&lt;li&gt;不依赖官方网络，适合：
+&lt;ul&gt;
+&lt;li&gt;👨‍💻 本地开发调试子图&lt;/li&gt;
+&lt;li&gt;🧪 针对测试链或私链部署索引器&lt;/li&gt;
+&lt;li&gt;🕵️‍♀️ 自定义数据抓取需求&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h3 id=&#34;docker-部署&#34;&gt;docker 部署
 &lt;/h3&gt;&lt;p&gt;docker-compose.yml文件&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -316,9 +320,17 @@ IPFS 用来存储 Subgraph 的代码、ABI 文件、schema 文件等静态内容
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;ipfsdata&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;启动 docker compose up -d
-停止 docker compose down -v&lt;/p&gt;
-&lt;h3 id=&#34;启动-anvil&#34;&gt;启动 anvil
+&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;启动 docker compose up -d
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;停止 docker compose down -v
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id=&#34;启动-anvil&#34;&gt;启动 anvil
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1

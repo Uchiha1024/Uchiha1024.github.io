@@ -491,12 +491,16 @@ IPFS 用来存储 Subgraph 的代码、ABI 文件、schema 文件等静态内容
 	
 ></p>
 <h2 id="本地部署-graph-节点">本地部署 Graph 节点
-</h2><p>• 完全本地运行（PostgreSQL + IPFS + Graph Node）
-• 不依赖官方网络
-• 更适合：
-• 👨‍💻 本地开发调试子图
-• 🧪 针对测试链或私链部署索引器
-• 🕵️‍♀️ 自定义数据抓取需求</p>
+</h2><ul>
+<li>完全本地运行（PostgreSQL + IPFS + Graph Node）</li>
+<li>不依赖官方网络，适合：
+<ul>
+<li>👨‍💻 本地开发调试子图</li>
+<li>🧪 针对测试链或私链部署索引器</li>
+<li>🕵️‍♀️ 自定义数据抓取需求</li>
+</ul>
+</li>
+</ul>
 <h3 id="docker-部署">docker 部署
 </h3><p>docker-compose.yml文件</p>
 <div class="highlight"><div class="chroma">
@@ -609,9 +613,17 @@ IPFS 用来存储 Subgraph 的代码、ABI 文件、schema 文件等静态内容
 </span></span><span class="line"><span class="cl">  <span class="n">ipfsdata</span><span class="p">:</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>启动 docker compose up -d
-停止 docker compose down -v</p>
-<h3 id="启动-anvil">启动 anvil
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">启动 docker compose up -d
+</span></span><span class="line"><span class="cl">停止 docker compose down -v
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="启动-anvil">启动 anvil
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
