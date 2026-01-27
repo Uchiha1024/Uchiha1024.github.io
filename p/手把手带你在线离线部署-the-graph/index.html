@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="简介 The Graph 是一个去中心化的协议，用于索引和查询区块链数据。它使得开发者能够构建基于区块链的数据应用（dApps），并能快速、高效地查询和访问链上的信息。 在此处，主要用于监听获取我们部署的合约的事件。\n">
+<title>手把手带你在线、离线部署 The Graph</title>
+
+<link rel='canonical' href='https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/'>
+
+<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="手把手带你在线、离线部署 The Graph">
+<meta property='og:description' content="简介 The Graph 是一个去中心化的协议，用于索引和查询区块链数据。它使得开发者能够构建基于区块链的数据应用（dApps），并能快速、高效地查询和访问链上的信息。 在此处，主要用于监听获取我们部署的合约的事件。\n">
+<meta property='og:url' content='https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/'>
+<meta property='og:site_name' content='Vince'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2026-01-27T11:09:19&#43;08:00'/><meta property='article:modified_time' content='2026-01-27T11:09:19&#43;08:00'/><meta property='og:image' content='https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/cover.jpg' />
+<meta name="twitter:title" content="手把手带你在线、离线部署 The Graph">
+<meta name="twitter:description" content="简介 The Graph 是一个去中心化的协议，用于索引和查询区块链数据。它使得开发者能够构建基于区块链的数据应用（dApps），并能快速、高效地查询和访问链上的信息。 在此处，主要用于监听获取我们部署的合约的事件。\n"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/cover.jpg' />
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_d2c1829478b3924d.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">😀</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Vince</a></h1>
+            <h2 class="site-description">There is a crack in everything, that&#39;s how the light gets in</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/Uchiha1024'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>主页</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>归档</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>暗色模式</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目录</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#简介">简介</a></li>
+    <li></li>
+    <li><a href="#在线部署">在线部署</a>
+      <ol>
+        <li><a href="#注册">注册</a></li>
+        <li><a href="#添加-subgraph">添加 subgraph</a></li>
+        <li><a href="#在线部署-subgraph">在线部署 subgraph</a>
+          <ol>
+            <li><a href="#初始化目录">初始化目录</a></li>
+            <li><a href="#认证">认证</a></li>
+            <li><a href="#构建项目代码">构建项目代码</a></li>
+            <li><a href="#部署到-the-graph的-studio-中">部署到 the graph的 studio 中</a></li>
+            <li><a href="#测试">测试</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#本地部署-graph-节点">本地部署 Graph 节点</a>
+      <ol>
+        <li><a href="#docker-部署">docker 部署</a></li>
+        <li><a href="#启动-anvil">启动 anvil</a></li>
+        <li><a href="#使用-docker-compose-启动-graph-node-和-postgre-以及-ipfs">使用 docker-compose 启动 graph-node 和 postgre 以及 ipfs</a></li>
+        <li><a href="#部署-shawnerc20-合约到-anvil-上复制出来合约地址">部署 ShawnERC20 合约到 anvil 上，复制出来合约地址</a></li>
+        <li><a href="#创建子图">创建子图</a></li>
+        <li><a href="#生成代码编译项目">生成代码、编译项目</a></li>
+        <li><a href="#部署项目到本地-graph-node-中">部署项目到本地 Graph Node 中</a></li>
+        <li><a href="#测试-1">测试</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/">
+                <img src="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/cover_hu_2ae43b0d5e2c5336.jpg"
+                        srcset="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/cover_hu_2ae43b0d5e2c5336.jpg 800w, /p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/cover_hu_b8f745b775086316.jpg 1600w"
+                        width="800" 
+                        height="437" 
+                        loading="lazy"
+                        alt="Featured image of post 手把手带你在线、离线部署 The Graph" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/">手把手带你在线、离线部署 The Graph</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published" datetime='2026-01-27T11:09:19&#43;08:00'>2026-01-27</time>
+            </div>
+        
+
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="简介">简介
+</h2><p>The Graph 是一个去中心化的协议，用于索引和查询区块链数据。它使得开发者能够构建基于区块链的数据应用（dApps），并能快速、高效地查询和访问链上的信息。
+在此处，主要用于监听获取我们部署的<strong>合约的事件</strong>。</p>
+<ol>
+<li>Subgraphs：
+Subgraph 是一个数据子图，它定义了如何从区块链中抓取和索引数据。开发者通过编写子图来指定数据源、查询事件、映射规则等。
+Subgraph 会自动抓取区块链数据，进行索引并存储在数据库中（通常是 PostgreSQL）。开发者可以通过 GraphQL 查询语言来访问这些数据。</li>
+<li>GraphQL：
+The Graph 使用 GraphQL 作为查询语言，允许开发者以非常高效和灵活的方式从区块链中查询数据。
+Subgraph 可以处理特定区块链事件（如交易、合约调用等），将这些事件转化为易于查询的数据。</li>
+<li>Graph Node：
+Graph Node是 The Graph 协议的核心组件，负责从区块链上抓取、索引和存储数据。它运行在后端，接收来自 Subgraph 的请求，并将数据存储在数据库中（通常是 PostgreSQL）和去中心化存储（如 IPFS）。</li>
+<li>IPFS（InterPlanetary File System）：
+IPFS 用来存储 Subgraph 的代码、ABI 文件、schema 文件等静态内容。它确保这些文件在去中心化的存储网络中不易篡改，能够安全地被访问。</li>
+</ol>
+<h2 id="">
+</h2><h2 id="在线部署">在线部署
+</h2><h3 id="注册">注册
+</h3><p><a class="link" href="https://thegraph.com/explorer/"  target="_blank" rel="noopener"
+    >Browse and Explore Subgraphs (thegraph.com)</a>上创建一个Subgraph</p>
+<h3 id="添加-subgraph">添加 subgraph
+</h3><p>在网页上，添加一个 subgraph 工作空间
+<img src="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-93df1b591c56067a.png"
+	width="1788"
+	height="980"
+	srcset="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-93df1b591c56067a_hu_469206291b68ecb5.png 480w, /p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-93df1b591c56067a_hu_5c6ba01484f0461b.png 1024w"
+	loading="lazy"
+	
+		alt="image.png"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="182"
+		data-flex-basis="437px"
+	
+></p>
+<h3 id="在线部署-subgraph">在线部署 subgraph
+</h3><p>控制台中安装依赖</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">yarn global add @graphprotocol/graph-cli
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="初始化目录">初始化目录
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">graph init my-subgraph
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>按照命令行指引，往下走即可。
+<img src="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-9b6765da103f6948.png"
+	width="1298"
+	height="1318"
+	srcset="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-9b6765da103f6948_hu_b6a56060c7023176.png 480w, /p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-9b6765da103f6948_hu_500e7e5b63437bcb.png 1024w"
+	loading="lazy"
+	
+		alt="image.png"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="98"
+		data-flex-basis="236px"
+	
+></p>
+<h4 id="认证">认证
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">graph auth _your_token_
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-781ecfb708eb7813.png"
+	width="652"
+	height="448"
+	srcset="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-781ecfb708eb7813_hu_fec7606ac0686e4a.png 480w, /p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-781ecfb708eb7813_hu_67518d96f84e73f9.png 1024w"
+	loading="lazy"
+	
+		alt="image.png"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="145"
+		data-flex-basis="349px"
+	
+></p>
+<p><img src="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-18bdfc051239a8d6.png"
+	width="974"
+	height="168"
+	srcset="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-18bdfc051239a8d6_hu_11a752611e94c295.png 480w, /p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-18bdfc051239a8d6_hu_fef0d652bcf267b0.png 1024w"
+	loading="lazy"
+	
+		alt="image.png"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="579"
+		data-flex-basis="1391px"
+	
+></p>
+<h4 id="构建项目代码">构建项目代码
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"> graph codegen &amp;&amp; graph build
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-3dd900f78beae1e0.png"
+	width="1120"
+	height="756"
+	srcset="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-3dd900f78beae1e0_hu_f035a1f8578e3c7f.png 480w, /p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-3dd900f78beae1e0_hu_88c1a05a4aaf488a.png 1024w"
+	loading="lazy"
+	
+		alt="image.png"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="148"
+		data-flex-basis="355px"
+	
+></p>
+<h4 id="部署到-the-graph的-studio-中">部署到 the graph的 studio 中
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"> graph deploy my-subgraph
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-d9410d6771e9b202.png"
+	width="1172"
+	height="720"
+	srcset="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-d9410d6771e9b202_hu_fa3015000b9becc7.png 480w, /p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-d9410d6771e9b202_hu_3ebf620852f3d74b.png 1024w"
+	loading="lazy"
+	
+		alt="image.png"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="162"
+		data-flex-basis="390px"
+	
+></p>
+<p>此时，我们在 the graph 的官方网页应该能看到变化，说明 subgraph 已经被部署。</p>
+<p><img src="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-a1f1eb418ecd23ee.png"
+	width="1792"
+	height="1804"
+	srcset="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-a1f1eb418ecd23ee_hu_d60d946a79abb7d8.png 480w, /p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-a1f1eb418ecd23ee_hu_bed65527b2878ec1.png 1024w"
+	loading="lazy"
+	
+		alt="image.png"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="99"
+		data-flex-basis="238px"
+	
+></p>
+<h4 id="测试">测试
+</h4><p>此时，我们在 the graph 的网页仪表板中，点击 playground 执行查询，即可获取到合约对应的事件。经过区块浏览器的对比，两者获取到的事件哈希一致。</p>
+<p><img src="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-b0f6f04162d29795.png"
+	width="3554"
+	height="1512"
+	srcset="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-b0f6f04162d29795_hu_265ba8c8790bb825.png 480w, /p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-b0f6f04162d29795_hu_333008e39b36063d.png 1024w"
+	loading="lazy"
+	
+		alt="image.png"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="235"
+		data-flex-basis="564px"
+	
+></p>
+<h2 id="本地部署-graph-节点">本地部署 Graph 节点
+</h2><p>• 完全本地运行（PostgreSQL + IPFS + Graph Node）
+• 不依赖官方网络
+• 更适合：
+• 👨‍💻 本地开发调试子图
+• 🧪 针对测试链或私链部署索引器
+• 🕵️‍♀️ 自定义数据抓取需求</p>
+<h3 id="docker-部署">docker 部署
+</h3><p>docker-compose.yml文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">version</span><span class="p">:</span> <span class="s1">&#39;3&#39;</span>  <span class="c1"># 指定 Docker Compose 文件使用的版本</span>
+</span></span><span class="line"><span class="cl"><span class="n">services</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># PostgreSQL 数据库服务（用于 graph-node 存储数据）</span>
+</span></span><span class="line"><span class="cl">  <span class="n">postgres</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">image</span><span class="p">:</span> <span class="n">postgres</span><span class="p">:</span><span class="mi">15</span>  <span class="c1"># 使用官方 postgres 镜像的第15版</span>
+</span></span><span class="line"><span class="cl">    <span class="n">environment</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">POSTGRES_USER</span><span class="p">:</span> <span class="n">postgres</span>         <span class="c1"># 设置数据库用户名</span>
+</span></span><span class="line"><span class="cl">      <span class="n">POSTGRES_DB</span><span class="p">:</span> <span class="n">graph</span><span class="o">-</span><span class="n">node</span>         <span class="c1"># 创建的数据库名</span>
+</span></span><span class="line"><span class="cl">      <span class="n">POSTGRES_HOST_AUTH_METHOD</span><span class="p">:</span> <span class="n">trust</span> <span class="c1"># 使用 trust 模式，无需密码</span>
+</span></span><span class="line"><span class="cl">      <span class="n">POSTGRES_INITDB_ARGS</span><span class="p">:</span> <span class="s2">&#34;--locale=C --encoding=UTF8&#34;</span> <span class="c1"># 初始化参数，设置编码为 UTF-8</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ports</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s1">&#39;5432:5432&#39;</span>  <span class="c1"># 将容器的 5432 端口映射到主机的 5432（Postgres 默认端口）</span>
+</span></span><span class="line"><span class="cl">    <span class="n">volumes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">pgdata</span><span class="p">:</span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">postgresql</span><span class="o">/</span>  <span class="c1"># 使用名为 pgdata 的卷挂载数据目录，持久化存储</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># IPFS 服务（用于存储和获取子图文件）</span>
+</span></span><span class="line"><span class="cl">  <span class="n">ipfs</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">image</span><span class="p">:</span> <span class="n">ipfs</span><span class="o">/</span><span class="n">go</span><span class="o">-</span><span class="n">ipfs</span><span class="p">:</span><span class="n">v0</span><span class="o">.</span><span class="mf">4.23</span>  <span class="c1"># 使用 IPFS 官方镜像，版本 0.4.23</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ports</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s1">&#39;5001:5001&#39;</span>  <span class="c1"># IPFS API 接口端口</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s1">&#39;8080:8080&#39;</span>  <span class="c1"># IPFS 网关端口</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s1">&#39;4001:4001&#39;</span>  <span class="c1"># IPFS swarm 通信端口（用于 P2P 通信）</span>
+</span></span><span class="line"><span class="cl">    <span class="n">volumes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">ipfsdata</span><span class="p">:</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">ipfs</span>  <span class="c1"># 使用名为 ipfsdata 的卷挂载 IPFS 数据目录</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># graph-node 服务（核心服务）</span>
+</span></span><span class="line"><span class="cl">  <span class="n">graph</span><span class="o">-</span><span class="n">node</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">image</span><span class="p">:</span> <span class="n">graphprotocol</span><span class="o">/</span><span class="n">graph</span><span class="o">-</span><span class="n">node</span><span class="p">:</span><span class="n">latest</span>  <span class="c1"># 使用 graph-node 的最新版镜像</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ports</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s1">&#39;8000:8000&#39;</span>  <span class="c1"># GraphQL 查询接口（用于前端查询）</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s1">&#39;8020:8020&#39;</span>  <span class="c1"># 管理接口（用于部署、管理子图）</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s1">&#39;8030:8030&#39;</span>  <span class="c1"># Prometheus 指标端口（监控用）</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s1">&#39;8040:8040&#39;</span>  <span class="c1"># JSON-RPC 指标端口（监控用）</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s1">&#39;8001:8001&#39;</span>  <span class="c1"># 备用 GraphQL 端口或调试用</span>
+</span></span><span class="line"><span class="cl">    <span class="n">depends_on</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">postgres</span>  <span class="c1"># 启动前依赖 postgres</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">ipfs</span>      <span class="c1"># 启动前依赖 ipfs</span>
+</span></span><span class="line"><span class="cl">    <span class="n">environment</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">postgres_host</span><span class="p">:</span> <span class="n">postgres</span>         <span class="c1"># PostgreSQL 容器服务名（Docker Compose 会自动识别）</span>
+</span></span><span class="line"><span class="cl">      <span class="n">postgres_user</span><span class="p">:</span> <span class="n">postgres</span>         <span class="c1"># 登录数据库的用户名</span>
+</span></span><span class="line"><span class="cl">      <span class="n">postgres_pass</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>               <span class="c1"># 数据库密码（为空，因为使用 trust 模式）</span>
+</span></span><span class="line"><span class="cl">      <span class="n">postgres_db</span><span class="p">:</span> <span class="n">graph</span><span class="o">-</span><span class="n">node</span>         <span class="c1"># 要连接的数据库名</span>
+</span></span><span class="line"><span class="cl">      <span class="n">ipfs</span><span class="p">:</span> <span class="s1">&#39;ipfs:5001&#39;</span>               <span class="c1"># IPFS 容器地址（Docker Compose 内部通信用）</span>
+</span></span><span class="line"><span class="cl">      <span class="n">ethereum</span><span class="p">:</span> <span class="s1">&#39;anvil:http://host.docker.internal:8545&#39;</span> 
+</span></span><span class="line"><span class="cl">        <span class="c1"># 指定以太坊节点地址，这里用的是 Foundry 的 anvil，host.docker.internal 让容器访问宿主机</span>
+</span></span><span class="line"><span class="cl">    <span class="n">volumes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="o">./</span><span class="n">data</span><span class="p">:</span><span class="o">/</span><span class="n">data</span>  <span class="c1"># 本地的 ./data 挂载到容器的 /data 目录（用于存储 graph-node 相关数据）</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 声明持久化存储卷</span>
+</span></span><span class="line"><span class="cl"><span class="n">volumes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">pgdata</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">ipfsdata</span><span class="p">:</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>启动 docker compose up -d
+停止 docker compose down -v</p>
+<h3 id="启动-anvil">启动 anvil
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">anvil -vvvv
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-c77a44aebd461f6d.png"
+	width="992"
+	height="462"
+	srcset="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-c77a44aebd461f6d_hu_8cb1f08fdb336aef.png 480w, /p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-c77a44aebd461f6d_hu_2a303cd6f6f81349.png 1024w"
+	loading="lazy"
+	
+		alt="image.png"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="214"
+		data-flex-basis="515px"
+	
+></p>
+<h3 id="使用-docker-compose-启动-graph-node-和-postgre-以及-ipfs">使用 docker-compose 启动 graph-node 和 postgre 以及 ipfs
+</h3><p><img src="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-82eb507a968c1ef2.png"
+	width="1286"
+	height="320"
+	srcset="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-82eb507a968c1ef2_hu_97c9e83969ebd6e6.png 480w, /p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-82eb507a968c1ef2_hu_b82c76a42c247529.png 1024w"
+	loading="lazy"
+	
+		alt="image.png"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="401"
+		data-flex-basis="964px"
+	
+>
+docker ps 查看是否启动成功</p>
+<p><img src="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-d12df0aba84118b8.png"
+	width="1290"
+	height="438"
+	srcset="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-d12df0aba84118b8_hu_9a3e970d31419bae.png 480w, /p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-d12df0aba84118b8_hu_bcdfcadd7f671f67.png 1024w"
+	loading="lazy"
+	
+		alt="image.png"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="294"
+		data-flex-basis="706px"
+	
+></p>
+<h3 id="部署-shawnerc20-合约到-anvil-上复制出来合约地址">部署 ShawnERC20 合约到 anvil 上，复制出来合约地址
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">forge script script/ERC20/DeployShawnERC20.sol \
+</span></span><span class="line"><span class="cl">  --rpc-url 127.0.0.1:8545 \
+</span></span><span class="line"><span class="cl">  --private-key $PRIVATE_KEY_1 \
+</span></span><span class="line"><span class="cl">  --broadcast \
+</span></span><span class="line"><span class="cl">  -vvvv
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-0acf3f1899545abb.png"
+	width="1266"
+	height="800"
+	srcset="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-0acf3f1899545abb_hu_4be88b4c8b7233de.png 480w, /p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-0acf3f1899545abb_hu_470250fee4667dfd.png 1024w"
+	loading="lazy"
+	
+		alt="image.png"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="158"
+		data-flex-basis="379px"
+	
+></p>
+<h3 id="创建子图">创建子图
+</h3><p>创建 subgraph 项目，将端口指向 graph-node的管理端口</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">graph create erc20-subgraph --node http://localhost:8020
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>完善 subgraph 项目的内容，包括 subgraph.yaml （定义数据域、IPFS 交互、事件处理程序） 和 mapping.ts（处理事件逻辑，解析事件并保存在 Graph 数据库中）
+代码见仓库
+<a class="link" href="https://github.com/Shawn-Shaw-x/hello-foundry/tree/main/erc20-subgraph"  target="_blank" rel="noopener"
+    >https://github.com/Shawn-Shaw-x/hello-foundry/tree/main/erc20-subgraph</a></p>
+<h3 id="生成代码编译项目">生成代码、编译项目
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">graph codegen &amp;&amp; graph build
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-c3ebfd81556ea614.png"
+	width="1122"
+	height="716"
+	srcset="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-c3ebfd81556ea614_hu_2e0a5630041c9ce1.png 480w, /p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-c3ebfd81556ea614_hu_680faf2a4731eeee.png 1024w"
+	loading="lazy"
+	
+		alt="image.png"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="156"
+		data-flex-basis="376px"
+	
+></p>
+<h3 id="部署项目到本地-graph-node-中">部署项目到本地 Graph Node 中
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">graph deploy erc20-subgraph \
+</span></span><span class="line"><span class="cl">  --node http://localhost:8020 \
+</span></span><span class="line"><span class="cl">  --ipfs http://localhost:5001
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-187b4ef45e47b04e.png"
+	width="1246"
+	height="1318"
+	srcset="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-187b4ef45e47b04e_hu_d601f31408b95420.png 480w, /p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-187b4ef45e47b04e_hu_56b1e7f1e448f9b4.png 1024w"
+	loading="lazy"
+	
+		alt="image.png"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="94"
+		data-flex-basis="226px"
+	
+></p>
+<h3 id="测试-1">测试
+</h3><p>浏览器上查看
+http://localhost:8000/subgraphs/name/erc20-subgraph</p>
+<p>输入</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">  transfers {
+</span></span><span class="line"><span class="cl">    id
+</span></span><span class="line"><span class="cl">    from
+</span></span><span class="line"><span class="cl">    to
+</span></span><span class="line"><span class="cl">    value
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-59e6bc038f8b0118.png"
+	width="1792"
+	height="830"
+	srcset="/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-59e6bc038f8b0118_hu_78a739af90161aec.png 480w, /p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-59e6bc038f8b0118_hu_174d0c8f37eaf3c.png 1024w"
+	loading="lazy"
+	
+		alt="image.png"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="215"
+		data-flex-basis="518px"
+	
+>
+通过编写 GraphQL 查询语言，可以看到本地 Graph给我们返回了正确的合约 transfer 事件。本地部署成功。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="Uchiha1024/Uchiha1024.github.io"
+        issue-term="pathname"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    let utterancesLoaded = false;
+
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+
+        
+        utterancesLoaded = true;
+        setUtterancesTheme(document.documentElement.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (!utterancesLoaded) return;
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2025 - 
+        
+        2026 Vince
+    </section>
+    
+    <section class="powerby">
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 构建 <br />
+        主题 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.33.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 设计
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+    
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<div id="particles-js"></div>
+
+<script src=https://Uchiha1024.github.io/background/particles.min.js></script>
+<script>
+  particlesJS.load('particles-js', "https://Uchiha1024.github.io/background/particlesjs-config.json", function() {
+    console.log('particles.js loaded - callback');
+  });
+</script>
+
+<style>
+  #particles-js {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: -1;
+  }
+</style>
+
+    </body>
+</html>

@@ -7,7 +7,509 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
         <copyright>Vince</copyright>
-        <lastBuildDate>Thu, 22 Jan 2026 16:25:22 +0800</lastBuildDate><atom:link href="https://Uchiha1024.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Tue, 27 Jan 2026 11:09:19 +0800</lastBuildDate><atom:link href="https://Uchiha1024.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>手把手带你在线、离线部署 The Graph</title>
+        <link>https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/</link>
+        <pubDate>Tue, 27 Jan 2026 11:09:19 +0800</pubDate>
+        
+        <guid>https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/</guid>
+        <description>&lt;img src="https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/cover.jpg" alt="Featured image of post 手把手带你在线、离线部署 The Graph" /&gt;&lt;h2 id=&#34;简介&#34;&gt;简介
+&lt;/h2&gt;&lt;p&gt;The Graph 是一个去中心化的协议，用于索引和查询区块链数据。它使得开发者能够构建基于区块链的数据应用（dApps），并能快速、高效地查询和访问链上的信息。
+在此处，主要用于监听获取我们部署的&lt;strong&gt;合约的事件&lt;/strong&gt;。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Subgraphs：
+Subgraph 是一个数据子图，它定义了如何从区块链中抓取和索引数据。开发者通过编写子图来指定数据源、查询事件、映射规则等。
+Subgraph 会自动抓取区块链数据，进行索引并存储在数据库中（通常是 PostgreSQL）。开发者可以通过 GraphQL 查询语言来访问这些数据。&lt;/li&gt;
+&lt;li&gt;GraphQL：
+The Graph 使用 GraphQL 作为查询语言，允许开发者以非常高效和灵活的方式从区块链中查询数据。
+Subgraph 可以处理特定区块链事件（如交易、合约调用等），将这些事件转化为易于查询的数据。&lt;/li&gt;
+&lt;li&gt;Graph Node：
+Graph Node是 The Graph 协议的核心组件，负责从区块链上抓取、索引和存储数据。它运行在后端，接收来自 Subgraph 的请求，并将数据存储在数据库中（通常是 PostgreSQL）和去中心化存储（如 IPFS）。&lt;/li&gt;
+&lt;li&gt;IPFS（InterPlanetary File System）：
+IPFS 用来存储 Subgraph 的代码、ABI 文件、schema 文件等静态内容。它确保这些文件在去中心化的存储网络中不易篡改，能够安全地被访问。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;&#34;&gt;
+&lt;/h2&gt;&lt;h2 id=&#34;在线部署&#34;&gt;在线部署
+&lt;/h2&gt;&lt;h3 id=&#34;注册&#34;&gt;注册
+&lt;/h3&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://thegraph.com/explorer/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Browse and Explore Subgraphs (thegraph.com)&lt;/a&gt;上创建一个Subgraph&lt;/p&gt;
+&lt;h3 id=&#34;添加-subgraph&#34;&gt;添加 subgraph
+&lt;/h3&gt;&lt;p&gt;在网页上，添加一个 subgraph 工作空间
+&lt;img src=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-93df1b591c56067a.png&#34;
+	width=&#34;1788&#34;
+	height=&#34;980&#34;
+	srcset=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-93df1b591c56067a_hu_469206291b68ecb5.png 480w, https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-93df1b591c56067a_hu_5c6ba01484f0461b.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;image.png&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;182&#34;
+		data-flex-basis=&#34;437px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;h3 id=&#34;在线部署-subgraph&#34;&gt;在线部署 subgraph
+&lt;/h3&gt;&lt;p&gt;控制台中安装依赖&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;yarn global add @graphprotocol/graph-cli
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h4 id=&#34;初始化目录&#34;&gt;初始化目录
+&lt;/h4&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;graph init my-subgraph
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;按照命令行指引，往下走即可。
+&lt;img src=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-9b6765da103f6948.png&#34;
+	width=&#34;1298&#34;
+	height=&#34;1318&#34;
+	srcset=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-9b6765da103f6948_hu_b6a56060c7023176.png 480w, https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-9b6765da103f6948_hu_500e7e5b63437bcb.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;image.png&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;98&#34;
+		data-flex-basis=&#34;236px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;h4 id=&#34;认证&#34;&gt;认证
+&lt;/h4&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;graph auth _your_token_
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-781ecfb708eb7813.png&#34;
+	width=&#34;652&#34;
+	height=&#34;448&#34;
+	srcset=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-781ecfb708eb7813_hu_fec7606ac0686e4a.png 480w, https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-781ecfb708eb7813_hu_67518d96f84e73f9.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;image.png&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;145&#34;
+		data-flex-basis=&#34;349px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-18bdfc051239a8d6.png&#34;
+	width=&#34;974&#34;
+	height=&#34;168&#34;
+	srcset=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-18bdfc051239a8d6_hu_11a752611e94c295.png 480w, https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-18bdfc051239a8d6_hu_fef0d652bcf267b0.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;image.png&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;579&#34;
+		data-flex-basis=&#34;1391px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;h4 id=&#34;构建项目代码&#34;&gt;构建项目代码
+&lt;/h4&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; graph codegen &amp;amp;&amp;amp; graph build
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-3dd900f78beae1e0.png&#34;
+	width=&#34;1120&#34;
+	height=&#34;756&#34;
+	srcset=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-3dd900f78beae1e0_hu_f035a1f8578e3c7f.png 480w, https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-3dd900f78beae1e0_hu_88c1a05a4aaf488a.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;image.png&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;148&#34;
+		data-flex-basis=&#34;355px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;h4 id=&#34;部署到-the-graph的-studio-中&#34;&gt;部署到 the graph的 studio 中
+&lt;/h4&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; graph deploy my-subgraph
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-d9410d6771e9b202.png&#34;
+	width=&#34;1172&#34;
+	height=&#34;720&#34;
+	srcset=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-d9410d6771e9b202_hu_fa3015000b9becc7.png 480w, https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-d9410d6771e9b202_hu_3ebf620852f3d74b.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;image.png&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;162&#34;
+		data-flex-basis=&#34;390px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;此时，我们在 the graph 的官方网页应该能看到变化，说明 subgraph 已经被部署。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-a1f1eb418ecd23ee.png&#34;
+	width=&#34;1792&#34;
+	height=&#34;1804&#34;
+	srcset=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-a1f1eb418ecd23ee_hu_d60d946a79abb7d8.png 480w, https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-a1f1eb418ecd23ee_hu_bed65527b2878ec1.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;image.png&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;99&#34;
+		data-flex-basis=&#34;238px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;h4 id=&#34;测试&#34;&gt;测试
+&lt;/h4&gt;&lt;p&gt;此时，我们在 the graph 的网页仪表板中，点击 playground 执行查询，即可获取到合约对应的事件。经过区块浏览器的对比，两者获取到的事件哈希一致。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-b0f6f04162d29795.png&#34;
+	width=&#34;3554&#34;
+	height=&#34;1512&#34;
+	srcset=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-b0f6f04162d29795_hu_265ba8c8790bb825.png 480w, https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-b0f6f04162d29795_hu_333008e39b36063d.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;image.png&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;235&#34;
+		data-flex-basis=&#34;564px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;h2 id=&#34;本地部署-graph-节点&#34;&gt;本地部署 Graph 节点
+&lt;/h2&gt;&lt;p&gt;• 完全本地运行（PostgreSQL + IPFS + Graph Node）
+• 不依赖官方网络
+• 更适合：
+• 👨‍💻 本地开发调试子图
+• 🧪 针对测试链或私链部署索引器
+• 🕵️‍♀️ 自定义数据抓取需求&lt;/p&gt;
+&lt;h3 id=&#34;docker-部署&#34;&gt;docker 部署
+&lt;/h3&gt;&lt;p&gt;docker-compose.yml文件&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;20
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;21
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;22
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;23
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;24
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;25
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;26
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;27
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;28
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;29
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;30
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;31
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;32
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;33
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;34
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;35
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;36
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;37
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;38
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;39
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;40
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;41
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;42
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;43
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;44
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;45
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;46
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;47
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;48
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;49
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;50
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;51
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;52
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-gdscript3&#34; data-lang=&#34;gdscript3&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;version&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;3&amp;#39;&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# 指定 Docker Compose 文件使用的版本&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;services&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;# PostgreSQL 数据库服务（用于 graph-node 存储数据）&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;postgres&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;image&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;postgres&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;15&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# 使用官方 postgres 镜像的第15版&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;environment&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;n&#34;&gt;POSTGRES_USER&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;postgres&lt;/span&gt;         &lt;span class=&#34;c1&#34;&gt;# 设置数据库用户名&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;n&#34;&gt;POSTGRES_DB&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;graph&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;node&lt;/span&gt;         &lt;span class=&#34;c1&#34;&gt;# 创建的数据库名&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;n&#34;&gt;POSTGRES_HOST_AUTH_METHOD&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;trust&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;# 使用 trust 模式，无需密码&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;n&#34;&gt;POSTGRES_INITDB_ARGS&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;--locale=C --encoding=UTF8&amp;#34;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;# 初始化参数，设置编码为 UTF-8&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;ports&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;5432:5432&amp;#39;&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# 将容器的 5432 端口映射到主机的 5432（Postgres 默认端口）&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;volumes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pgdata&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;lib&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;postgresql&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# 使用名为 pgdata 的卷挂载数据目录，持久化存储&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;# IPFS 服务（用于存储和获取子图文件）&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;ipfs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;image&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ipfs&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;go&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;ipfs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;v0&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;mf&#34;&gt;4.23&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# 使用 IPFS 官方镜像，版本 0.4.23&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;ports&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;5001:5001&amp;#39;&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# IPFS API 接口端口&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;8080:8080&amp;#39;&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# IPFS 网关端口&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;4001:4001&amp;#39;&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# IPFS swarm 通信端口（用于 P2P 通信）&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;volumes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ipfsdata&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;data&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;ipfs&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# 使用名为 ipfsdata 的卷挂载 IPFS 数据目录&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;# graph-node 服务（核心服务）&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;graph&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;node&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;image&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;graphprotocol&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;graph&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;node&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;latest&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# 使用 graph-node 的最新版镜像&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;ports&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;8000:8000&amp;#39;&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# GraphQL 查询接口（用于前端查询）&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;8020:8020&amp;#39;&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# 管理接口（用于部署、管理子图）&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;8030:8030&amp;#39;&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# Prometheus 指标端口（监控用）&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;8040:8040&amp;#39;&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# JSON-RPC 指标端口（监控用）&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;8001:8001&amp;#39;&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# 备用 GraphQL 端口或调试用&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;depends_on&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;postgres&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# 启动前依赖 postgres&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ipfs&lt;/span&gt;      &lt;span class=&#34;c1&#34;&gt;# 启动前依赖 ipfs&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;environment&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;n&#34;&gt;postgres_host&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;postgres&lt;/span&gt;         &lt;span class=&#34;c1&#34;&gt;# PostgreSQL 容器服务名（Docker Compose 会自动识别）&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;n&#34;&gt;postgres_user&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;postgres&lt;/span&gt;         &lt;span class=&#34;c1&#34;&gt;# 登录数据库的用户名&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;n&#34;&gt;postgres_pass&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;               &lt;span class=&#34;c1&#34;&gt;# 数据库密码（为空，因为使用 trust 模式）&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;n&#34;&gt;postgres_db&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;graph&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;node&lt;/span&gt;         &lt;span class=&#34;c1&#34;&gt;# 要连接的数据库名&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;n&#34;&gt;ipfs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;ipfs:5001&amp;#39;&lt;/span&gt;               &lt;span class=&#34;c1&#34;&gt;# IPFS 容器地址（Docker Compose 内部通信用）&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;n&#34;&gt;ethereum&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;anvil:http://host.docker.internal:8545&amp;#39;&lt;/span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;c1&#34;&gt;# 指定以太坊节点地址，这里用的是 Foundry 的 anvil，host.docker.internal 让容器访问宿主机&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;volumes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;./&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;data&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;data&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# 本地的 ./data 挂载到容器的 /data 目录（用于存储 graph-node 相关数据）&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 声明持久化存储卷&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;volumes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;pgdata&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;ipfsdata&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;启动 docker compose up -d
+停止 docker compose down -v&lt;/p&gt;
+&lt;h3 id=&#34;启动-anvil&#34;&gt;启动 anvil
+&lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;anvil -vvvv
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-c77a44aebd461f6d.png&#34;
+	width=&#34;992&#34;
+	height=&#34;462&#34;
+	srcset=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-c77a44aebd461f6d_hu_8cb1f08fdb336aef.png 480w, https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-c77a44aebd461f6d_hu_2a303cd6f6f81349.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;image.png&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;214&#34;
+		data-flex-basis=&#34;515px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;h3 id=&#34;使用-docker-compose-启动-graph-node-和-postgre-以及-ipfs&#34;&gt;使用 docker-compose 启动 graph-node 和 postgre 以及 ipfs
+&lt;/h3&gt;&lt;p&gt;&lt;img src=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-82eb507a968c1ef2.png&#34;
+	width=&#34;1286&#34;
+	height=&#34;320&#34;
+	srcset=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-82eb507a968c1ef2_hu_97c9e83969ebd6e6.png 480w, https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-82eb507a968c1ef2_hu_b82c76a42c247529.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;image.png&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;401&#34;
+		data-flex-basis=&#34;964px&#34;
+	
+&gt;
+docker ps 查看是否启动成功&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-d12df0aba84118b8.png&#34;
+	width=&#34;1290&#34;
+	height=&#34;438&#34;
+	srcset=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-d12df0aba84118b8_hu_9a3e970d31419bae.png 480w, https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-d12df0aba84118b8_hu_bcdfcadd7f671f67.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;image.png&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;294&#34;
+		data-flex-basis=&#34;706px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;h3 id=&#34;部署-shawnerc20-合约到-anvil-上复制出来合约地址&#34;&gt;部署 ShawnERC20 合约到 anvil 上，复制出来合约地址
+&lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;forge script script/ERC20/DeployShawnERC20.sol \
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  --rpc-url 127.0.0.1:8545 \
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  --private-key $PRIVATE_KEY_1 \
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  --broadcast \
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  -vvvv
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-0acf3f1899545abb.png&#34;
+	width=&#34;1266&#34;
+	height=&#34;800&#34;
+	srcset=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-0acf3f1899545abb_hu_4be88b4c8b7233de.png 480w, https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-0acf3f1899545abb_hu_470250fee4667dfd.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;image.png&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;158&#34;
+		data-flex-basis=&#34;379px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;h3 id=&#34;创建子图&#34;&gt;创建子图
+&lt;/h3&gt;&lt;p&gt;创建 subgraph 项目，将端口指向 graph-node的管理端口&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;graph create erc20-subgraph --node http://localhost:8020
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;完善 subgraph 项目的内容，包括 subgraph.yaml （定义数据域、IPFS 交互、事件处理程序） 和 mapping.ts（处理事件逻辑，解析事件并保存在 Graph 数据库中）
+代码见仓库
+&lt;a class=&#34;link&#34; href=&#34;https://github.com/Shawn-Shaw-x/hello-foundry/tree/main/erc20-subgraph&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://github.com/Shawn-Shaw-x/hello-foundry/tree/main/erc20-subgraph&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&#34;生成代码编译项目&#34;&gt;生成代码、编译项目
+&lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;graph codegen &amp;amp;&amp;amp; graph build
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-c3ebfd81556ea614.png&#34;
+	width=&#34;1122&#34;
+	height=&#34;716&#34;
+	srcset=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-c3ebfd81556ea614_hu_2e0a5630041c9ce1.png 480w, https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-c3ebfd81556ea614_hu_680faf2a4731eeee.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;image.png&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;156&#34;
+		data-flex-basis=&#34;376px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;h3 id=&#34;部署项目到本地-graph-node-中&#34;&gt;部署项目到本地 Graph Node 中
+&lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;graph deploy erc20-subgraph \
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  --node http://localhost:8020 \
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  --ipfs http://localhost:5001
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-187b4ef45e47b04e.png&#34;
+	width=&#34;1246&#34;
+	height=&#34;1318&#34;
+	srcset=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-187b4ef45e47b04e_hu_d601f31408b95420.png 480w, https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-187b4ef45e47b04e_hu_56b1e7f1e448f9b4.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;image.png&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;94&#34;
+		data-flex-basis=&#34;226px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;h3 id=&#34;测试-1&#34;&gt;测试
+&lt;/h3&gt;&lt;p&gt;浏览器上查看
+http://localhost:8000/subgraphs/name/erc20-subgraph&lt;/p&gt;
+&lt;p&gt;输入&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;8
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  transfers {
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    id
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    from
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    to
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    value
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  }
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-59e6bc038f8b0118.png&#34;
+	width=&#34;1792&#34;
+	height=&#34;830&#34;
+	srcset=&#34;https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-59e6bc038f8b0118_hu_78a739af90161aec.png 480w, https://Uchiha1024.github.io/p/%E6%89%8B%E6%8A%8A%E6%89%8B%E5%B8%A6%E4%BD%A0%E5%9C%A8%E7%BA%BF%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-the-graph/assets/image-59e6bc038f8b0118_hu_174d0c8f37eaf3c.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;image.png&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;215&#34;
+		data-flex-basis=&#34;518px&#34;
+	
+&gt;
+通过编写 GraphQL 查询语言，可以看到本地 Graph给我们返回了正确的合约 transfer 事件。本地部署成功。&lt;/p&gt;
+</description>
+        </item>
+        <item>
         <title>合约事件监听</title>
         <link>https://Uchiha1024.github.io/p/%E5%90%88%E7%BA%A6%E4%BA%8B%E4%BB%B6%E7%9B%91%E5%90%AC/</link>
         <pubDate>Thu, 22 Jan 2026 16:25:22 +0800</pubDate>
