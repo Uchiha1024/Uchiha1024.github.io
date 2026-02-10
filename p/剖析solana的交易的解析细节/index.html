@@ -1,0 +1,2521 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content=" 概述 \u200b\tSolana 交易解析涉及多个方面，包括交易结构、签名验证、指令解析、事件日志处理等。由于 Solana 采用的是账户模型（Account Model），其交易结构与以太坊（Ethereum）的 EVM 交易存在较大差异，解析 Solana 交易需要深入理解 Solana 的交易格式、指令集（Instruction Set）以及 RPC API。\n">
+<title>剖析Solana的交易的解析细节</title>
+
+<link rel='canonical' href='https://Uchiha1024.github.io/p/%E5%89%96%E6%9E%90solana%E7%9A%84%E4%BA%A4%E6%98%93%E7%9A%84%E8%A7%A3%E6%9E%90%E7%BB%86%E8%8A%82/'>
+
+<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="剖析Solana的交易的解析细节">
+<meta property='og:description' content=" 概述 \u200b\tSolana 交易解析涉及多个方面，包括交易结构、签名验证、指令解析、事件日志处理等。由于 Solana 采用的是账户模型（Account Model），其交易结构与以太坊（Ethereum）的 EVM 交易存在较大差异，解析 Solana 交易需要深入理解 Solana 的交易格式、指令集（Instruction Set）以及 RPC API。\n">
+<meta property='og:url' content='https://Uchiha1024.github.io/p/%E5%89%96%E6%9E%90solana%E7%9A%84%E4%BA%A4%E6%98%93%E7%9A%84%E8%A7%A3%E6%9E%90%E7%BB%86%E8%8A%82/'>
+<meta property='og:site_name' content='Vince'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2026-02-09T16:48:07&#43;08:00'/><meta property='article:modified_time' content='2026-02-09T16:48:07&#43;08:00'/><meta property='og:image' content='https://Uchiha1024.github.io/p/%E5%89%96%E6%9E%90solana%E7%9A%84%E4%BA%A4%E6%98%93%E7%9A%84%E8%A7%A3%E6%9E%90%E7%BB%86%E8%8A%82/cover.jpg' />
+<meta name="twitter:title" content="剖析Solana的交易的解析细节">
+<meta name="twitter:description" content=" 概述 \u200b\tSolana 交易解析涉及多个方面，包括交易结构、签名验证、指令解析、事件日志处理等。由于 Solana 采用的是账户模型（Account Model），其交易结构与以太坊（Ethereum）的 EVM 交易存在较大差异，解析 Solana 交易需要深入理解 Solana 的交易格式、指令集（Instruction Set）以及 RPC API。\n"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://Uchiha1024.github.io/p/%E5%89%96%E6%9E%90solana%E7%9A%84%E4%BA%A4%E6%98%93%E7%9A%84%E8%A7%A3%E6%9E%90%E7%BB%86%E8%8A%82/cover.jpg' />
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_d2c1829478b3924d.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">😀</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Vince</a></h1>
+            <h2 class="site-description">There is a crack in everything, that&#39;s how the light gets in</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/Uchiha1024'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>主页</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>归档</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>暗色模式</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目录</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#概述">概述</a></li>
+    <li><a href="#solana-前置知识">Solana 前置知识</a>
+      <ol>
+        <li><a href="#基本信息">基本信息</a></li>
+        <li><a href="#rpc---api-的获取方式">RPC - API 的获取方式</a></li>
+        <li><a href="#账户模型还是-utxo-模型">账户模型还是 UTXO 模型</a></li>
+        <li><a href="#编码方式签名算法">编码方式，签名算法</a></li>
+        <li><a href="#代币和-nft-的兼容性">代币和 NFT 的兼容性</a>
+          <ol>
+            <li><a href="#spl-token-基础概念">SPL Token 基础概念</a></li>
+            <li><a href="#spl-token-的主要特性">SPL Token 的主要特性</a></li>
+          </ol>
+        </li>
+        <li><a href="#共识机制与交易确认">共识机制与交易确认</a>
+          <ol>
+            <li><a href="#共识机制">共识机制</a></li>
+            <li><a href="#solana-交易确认位">Solana 交易确认位</a></li>
+            <li><a href="#结论">结论</a></li>
+          </ol>
+        </li>
+        <li><a href="#交易细节">交易细节</a>
+          <ol>
+            <li><a href="#solana-的交易结构和组成部分">Solana 的交易结构和组成部分</a></li>
+            <li><a href="#native-token-交易解析">Native Token 交易解析</a></li>
+            <li><a href="#spl-token-类型的-token-交易解析">Spl-Token 类型的 Token 交易解析</a></li>
+            <li><a href="#spl-token-类型的-nft-交易解析">Spl-Token 类型的 NFT 交易解析</a></li>
+            <li><a href="#spl-token-常见的操作类别">Spl-token 常见的操作类别</a></li>
+          </ol>
+        </li>
+        <li><a href="#离线地址生成和离线签名">离线地址生成和离线签名</a>
+          <ol>
+            <li><a href="#离线地址生成">离线地址生成</a></li>
+            <li><a href="#离线签名">离线签名</a></li>
+          </ol>
+        </li>
+        <li><a href="#区块交易数据解析细节">区块交易数据解析细节</a>
+          <ol>
+            <li><a href="#获取最新区块">获取最新区块</a></li>
+            <li><a href="#根据-slot-获取里面的交易信息">根据 slot 获取里面的交易信息</a></li>
+            <li><a href="#根据交易-hash-获取交易信息">根据交易 Hash 获取交易信息</a></li>
+            <li><a href="#获取-recentblockhash">获取 recentBlockHash</a></li>
+            <li><a href="#获取创建地址的地址最小租金">获取创建地址的地址最小租金</a></li>
+            <li><a href="#发送交易到区块链网络">发送交易到区块链网络</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/%E5%89%96%E6%9E%90solana%E7%9A%84%E4%BA%A4%E6%98%93%E7%9A%84%E8%A7%A3%E6%9E%90%E7%BB%86%E8%8A%82/">
+                <img src="/p/%E5%89%96%E6%9E%90solana%E7%9A%84%E4%BA%A4%E6%98%93%E7%9A%84%E8%A7%A3%E6%9E%90%E7%BB%86%E8%8A%82/cover_hu_c16568848b7703eb.jpg"
+                        srcset="/p/%E5%89%96%E6%9E%90solana%E7%9A%84%E4%BA%A4%E6%98%93%E7%9A%84%E8%A7%A3%E6%9E%90%E7%BB%86%E8%8A%82/cover_hu_c16568848b7703eb.jpg 800w, /p/%E5%89%96%E6%9E%90solana%E7%9A%84%E4%BA%A4%E6%98%93%E7%9A%84%E8%A7%A3%E6%9E%90%E7%BB%86%E8%8A%82/cover_hu_783f1a39905ec550.jpg 1600w"
+                        width="800" 
+                        height="437" 
+                        loading="lazy"
+                        alt="Featured image of post 剖析Solana的交易的解析细节" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/%E5%89%96%E6%9E%90solana%E7%9A%84%E4%BA%A4%E6%98%93%E7%9A%84%E8%A7%A3%E6%9E%90%E7%BB%86%E8%8A%82/">剖析Solana的交易的解析细节</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published" datetime='2026-02-09T16:48:07&#43;08:00'>2026-02-09</time>
+            </div>
+        
+
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <hr>
+<h2 id="概述">概述
+</h2><p>​		Solana 交易解析涉及多个方面，包括交易结构、签名验证、指令解析、事件日志处理等。由于 Solana 采用的是账户模型（Account Model），其交易结构与以太坊（Ethereum）的 EVM 交易存在较大差异，解析 Solana 交易需要深入理解 Solana 的交易格式、指令集（Instruction Set）以及 RPC API。</p>
+<h2 id="solana-前置知识">Solana 前置知识
+</h2><h3 id="基本信息">基本信息
+</h3><h3 id="rpc---api-的获取方式">RPC - API 的获取方式
+</h3><ul>
+<li>
+<p>Solana 官方文档：https://solana.com/zh/rpc，文档里面有 miannet, testnet 和 devnet 的 rpc url 的地址</p>
+</li>
+<li>
+<p>第三方节点服务商：getblock 等提供 RPC 节点，会限制频率，但是能简单的使用</p>
+</li>
+</ul>
+<h3 id="账户模型还是-utxo-模型">账户模型还是 UTXO 模型
+</h3><ul>
+<li>
+<p>Solana 是账户模型，我们可以通过浏览器数据或者 getTransaction 判断 Solana 是账户模型</p>
+</li>
+<li>
+<p>浏览器上的交易基本是有 from, to 地址和金额，没有一对多，多对一，对多对的输入输出模型</p>
+</li>
+<li>
+<p>getTransaction 判断</p>
+</li>
+<li>
+<p>request</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">curl --location <span class="s1">&#39;https://go.getblock.io/70f479b9ed834b5f96a26934e0492b36&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl">  --header <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl">  --data <span class="s1">&#39;{
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;jsonrpc&#34;: &#34;2.0&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;id&#34;: 1,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;method&#34;: &#34;getTransaction&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;params&#34;: [
+</span></span></span><span class="line"><span class="cl"><span class="s1">      &#34;3bWvYMwvDgYyyr9jamh57dFc2atfZhBS2HhHqNKyGdUx9UwLQwS7hJ5WHaei9QqsDHyGp4ypn79uWystJ1G2pJZN&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">      {
+</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;encoding&#34;: &#34;jsonParsed&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;maxSupportedTransactionVersion&#34;: 0
+</span></span></span><span class="line"><span class="cl"><span class="s1">      }
+</span></span></span><span class="line"><span class="cl"><span class="s1">    ]
+</span></span></span><span class="line"><span class="cl"><span class="s1">  }&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Reponse</p>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;transaction&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;message&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;instructions&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">        <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;parsed&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;info&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">              <span class="s2">&#34;nonceAccount&#34;</span>: <span class="s2">&#34;NUr4FHh2HDAcHwXRxhNbWsAbJWzRZTzZspoSjHZy7HJ&#34;</span>,
+</span></span><span class="line"><span class="cl">              <span class="s2">&#34;nonceAuthority&#34;</span>: <span class="s2">&#34;updtkJ8HAhh3rSkBCd3p9Z1Q74yJW4rMhSbScRskDPM&#34;</span>,
+</span></span><span class="line"><span class="cl">              <span class="s2">&#34;recentBlockhashesSysvar&#34;</span>: <span class="s2">&#34;SysvarRecentB1ockHashes11111111111111111111&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;type&#34;</span>: <span class="s2">&#34;advanceNonce&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;program&#34;</span>: <span class="s2">&#34;system&#34;</span>,
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;programId&#34;</span>: <span class="s2">&#34;11111111111111111111111111111111&#34;</span>,
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;stackHeight&#34;</span>: null
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">        <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;parsed&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;info&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">              <span class="s2">&#34;destination&#34;</span>: <span class="s2">&#34;Cw8CFyM9FkoMi7K7Crf6HNQqf4uEMzpKw6QNghXLvLkY&#34;</span>,
+</span></span><span class="line"><span class="cl">              <span class="s2">&#34;lamports&#34;</span>: 1000,
+</span></span><span class="line"><span class="cl">              <span class="s2">&#34;source&#34;</span>: <span class="s2">&#34;updtkJ8HAhh3rSkBCd3p9Z1Q74yJW4rMhSbScRskDPM&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;type&#34;</span>: <span class="s2">&#34;transfer&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;program&#34;</span>: <span class="s2">&#34;system&#34;</span>,
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;programId&#34;</span>: <span class="s2">&#34;11111111111111111111111111111111&#34;</span>,
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;stackHeight&#34;</span>: null
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="o">]</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>​	观察上面的是数据，type 位 transfer 的交易，很明显 parsed 里面的 info 里面的 destination 是 to 地址，source 是 from 地址，lamports 是转账金额，从这里也能判断 solana 是账户模型的链。</p>
+<h3 id="编码方式签名算法">编码方式，签名算法
+</h3><p>从文档上面看出</p>
+<ul>
+<li>Solana 使用的签名算法是 Ed25519，文档链接：https://solana.com/zh/docs/core/accounts</li>
+<li>Solana 地址是使用公钥进行 base58 编码的字符串</li>
+<li>Solana HD 钱包的推导路径为 m/44&rsquo;/501&rsquo;/i&rsquo;/0&rsquo;，其中 i 为账户索引（0, 1, 2, …）文档链接：https://solana.com/zh/developers/cookbook/wallets/restore-from-mnemonic</li>
+</ul>
+<h3 id="代币和-nft-的兼容性">代币和 NFT 的兼容性
+</h3><p>Solana 生态系统中有一套被称为 Solana Program Library（SPL）的智能合约库，为开发者提供了常用功能。SPL Token 便是其中最常用、最核心的智能合约程序之一，用来在 Solana 网络上创建、管理、转移各类可替代性代币（Fungible Tokens）。相当于以太坊上的 ERC-20 标准。</p>
+<h4 id="spl-token-基础概念">SPL Token 基础概念
+</h4><ul>
+<li>
+<p>SPL（Solana Program Library）：SPL 是官方提供的一组智能合约（Program），它们封装了常见的功能和逻辑，供开发者或用户直接使用，其中最常见的合约有：SPL Token、SPL Memo、SPL Name Service 等等</p>
+</li>
+<li>
+<p>SPL Token 负责代币的创建与管理，是构建在 Solana 区块链上的可替代性代币标准</p>
+</li>
+<li>
+<p>SPL Token 与 SOL</p>
+<ul>
+<li>
+<p>SOL：Solana 网络的原生代币，可用于支付交易费、进行网络抵押（Staking）等</p>
+</li>
+<li>
+<p>SPL Token：与 ERC-20 类似，在 Solana 网络上发行的通证。任何人都可以根据 SPL Token 标准创建自己的代币，使用 Solana 的底层基础设施进行管理和流通</p>
+</li>
+</ul>
+</li>
+<li>
+<p>SPL Token 实际就是在 Solana 主网运行的一个程序（Program ID 通常为 TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA），在链上提供一系列指令（Instructions），以供用户通过交易来调用实现代币的发行、转移、销毁等操作</p>
+</li>
+<li>
+<p>Token Account 与 Associated Token Account</p>
+<ul>
+<li>
+<p>Token Account：存储某种特定 SPL Token 的账户，一个 Token Account 只能对应一种 Token 类型，用于记录“持有人地址”和“持有数量”</p>
+</li>
+<li>
+<p>Associated Token Account（ATA）：一个规范化的 Token Account，它按照一定算法与钱包地址+Token Mint 绑定。可以用同一个主钱包私钥创建多个 ATA，分别存储不同的 SPL Token。大多数前端 DApp 及工具都会使用 ATA</p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="spl-token-的主要特性">SPL Token 的主要特性
+</h4><ul>
+<li>
+<p>可自定义小数位数（Decimals）：在创建 SPL Token 时可以指定小数点（比如 6、8、9、甚至 0 等）。这会影响代币的最小精度</p>
+</li>
+<li>
+<p>可动态设置权限（Authority）：创建代币时可以指定多种权限（Authority），这些权限可以在创建时指定，也可以后续转移给他人，或者干脆取消（Burn Authority）；常见的有：</p>
+</li>
+<li>
+<p>Mint Authority：可增发该 Token 的地址</p>
+</li>
+<li>
+<p>Freeze Authority：可冻结某地址 Token 账户的地址</p>
+</li>
+<li>
+<p>Owner：Token Account 本身的所有者</p>
+</li>
+<li>
+<p>灵活的增发与销毁</p>
+<ul>
+<li>
+<p>通过 mint 指令，可以给指定的 Token Account 增发一定数量的代币（需要具备 Mint Authority）</p>
+</li>
+<li>
+<p>通过 burn 指令，可以从自己的 Token 账户中销毁（Burn）一定数量的代币（需要 Token Account 所有者及正确权限）</p>
+</li>
+<li>
+<p>冻结（Freeze）功能：若代币在设计上允许 Freeze Authority，则可以对某些 Token Account 进行冻结操作，使其无法转移代币，甚至无法销毁代币。在某些合规场景下会使用到这种功能</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="共识机制与交易确认">共识机制与交易确认
+</h3><h4 id="共识机制">共识机制
+</h4><p>Solana 作为当今 Web3 生态中最具突破性的 Layer 1 区块链之一，以高吞吐量、低延迟著称。相比于以太坊（Ethereum）或比特币（Bitcoin），Solana 采用了一种创新的共识机制：PoH（Proof of History，历史证明）+ Tower BFT（基于 PoH 的拜占庭容错协议）+ PoS（Proof of Stake，权益证明），这使得它能够以 400ms 的出块速度和 65,000 TPS 以上的交易处理能力，远超其他公链。</p>
+<p>Solana 的共识算法并不是单一的 PoS，而是结合了多个机制，共同提升区块链的效率和安全性：</p>
+<ul>
+<li>
+<p>PoH（Proof of History，历史证明）</p>
+<ul>
+<li>
+<p>提供去中心化时间同步，减少节点间的通信开销。</p>
+</li>
+<li>
+<p>通过连续哈希生成时间戳，确保交易的顺序可验证。</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tower BFT（基于 PoH 的 BFT 变体）</p>
+<ul>
+<li>
+<p>作为 Solana 的最终性协议，确保区块的不可逆性。</p>
+</li>
+<li>
+<p>基于 PBFT（Practical Byzantine Fault Tolerance）优化，减少消息复杂度。</p>
+</li>
+</ul>
+</li>
+<li>
+<p>PoS（Proof of Stake，权益证明）</p>
+<ul>
+<li>
+<p>选举验证者（Validators），决定谁负责区块生产。</p>
+</li>
+<li>
+<p>采用质押（Staking）和罚没（Slashing） 机制，确保网络安全性。</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>这种三者结合的方式，帮助 Solana 兼具高吞吐量、去中心化和安全性，相比其他 PoS 或 PoW 区块链更具优势</p>
+<h4 id="solana-交易确认位">Solana 交易确认位
+</h4><p>在 Solana 中，每个 slot 大约 400 毫秒产生一个，用于装载区块。当超过 2/3 的节点对某个 slot 进行投票时，该区块就被视为 Finalized。最少需要经过 32 个 slot 才能达到相对安全的确认状态，而当 slot 数量超过 64 时，区块的状态就变得绝对安全，不会出现回滚现象。因此，在实际应用中，为了确保交易绝对安全，建议等待 64 个 slot 的确认</p>
+<ul>
+<li>
+<p>相对安全：32 Slot</p>
+<pre><code>* 等待 32 个 Slot：如果一个区块已经连续经历了 32 个 Slot（每个 Slot 都相互依赖前面已确认的区块），就可以算是达到了“相对安全”——此时区块被回滚的可能性极小
+
+* 适合常规交易场景：大多数情况下，32 Slot 就足以保证交易安全，满足一般用户的需求
+</code></pre>
+</li>
+<li>
+<p>绝对安全：64 Slot</p>
+<pre><code>* 等待 64 个 Slot：如果还不放心，或者是遇到金额巨大的交易，等待 64 个 Slot 会让区块的最终性几乎板上钉钉，“绝对安全”几乎排除了所有回滚或分叉的可能性
+
+* 适合高价值应用：对风险敏感度高的场景，如金融机构、跨境支付等，大额交易会选择等待 64 Slot 以保证万无一失
+</code></pre>
+</li>
+<li>
+<p>Slot 几乎是瞬时确认：如果只等 1 个 Slot，虽然交易能极快显示出“已确认”的状态，但安全性相对较低，仅适用于那些对回滚风险不太敏感的场合，比如一些小额闪付或测试交易</p>
+</li>
+<li>
+<p>总结</p>
+<ul>
+<li>
+<p>1 Slot：最快，但安全保障相对较弱。</p>
+</li>
+<li>
+<p>32 Slot：平衡了效率与安全，适合大多数日常交易需求。</p>
+</li>
+<li>
+<p>64 Slot：几乎可以“高枕无忧”，适合高价值交易或极端安全需求。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="结论">结论
+</h4><p>由 Solana 的共识算法我们可以得出 Solana 钱包交易的确认位和 Solana 是支持质押的</p>
+<ul>
+<li>
+<p>确认位</p>
+<ul>
+<li>
+<p>1 Slot：最快，但安全保障相对较弱。</p>
+</li>
+<li>
+<p>32 Slot：平衡了效率与安全，适合大多数日常交易需求。</p>
+</li>
+<li>
+<p>64 Slot：几乎可以“高枕无忧”，适合高价值交易或极端安全需求。</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Solana 质押流程</p>
+<ul>
+<li>
+<p>创建质押账户并打入质押的资金</p>
+</li>
+<li>
+<p>将质押的资金委托给矿池节点</p>
+</li>
+<li>
+<p>等待下一个质押周期开始之后进入质押并获得质押收益</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Solana 取回质押流程</p>
+<ul>
+<li>
+<p>若 Solana 质押没有进入到质押的 epoch，此时账户还在处于未激活状态，可以直接取回质押的资金</p>
+</li>
+<li>
+<p>若 Solana 质押的资金已经进入了 epoch, 需要执行操作将质押账户从 active 变成 inactive 状态</p>
+</li>
+<li>
+<p>等待当前质押周期结束之后，可以将奖励和质押本金提回主账户</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="交易细节">交易细节
+</h3><p>在 Solana 网络上，交易（Transaction） 其实是一个相对复杂的结构，它包含了签名、消息（Message）、指令（Instructions）等多层要素。理解并能够解析交易数据，对于开发者调试、审计或者在后端对交易做进一步处理至关重要。本文将从交易的结构、核心组成部分及 Native token, Spl-token(代币和NFT)解析方式等方面做一个较为深入的介绍。</p>
+<h4 id="solana-的交易结构和组成部分">Solana 的交易结构和组成部分
+</h4><ul>
+<li>
+<p>签名：一笔交易可以包含一个或多个签名（通常是一组签名者，至少包括资费支付者），以确保交易发起人拥有对相应账户的操作权限。</p>
+</li>
+<li>
+<p>消息：交易主体的信息都在 Message 中，包括要访问的账户列表、指令、最近区块哈希（recent blockhash）等。在 Solana 早期，Message 主要采用 v0 格式；从 Solana v1.10 开始，新增了 Versioned Transaction 的概念，支持 v0、v1 等不同格式的 Message，并引入了 Address Lookup Table（ALT） 来减少交易大小、支持更多账户等。</p>
+</li>
+<li>
+<p>元数据：在交易执行之后，链上会针对该交易生成 Transaction Meta，记录执行结果、消耗的计算单元（compute units）、账变、事件日志（log messages）等信息。</p>
+</li>
+</ul>
+<h4 id="native-token-交易解析">Native Token 交易解析
+</h4><ul>
+<li>请求一笔的 native token 的交易</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">curl --location <span class="s1">&#39;https://docs-demo.solana-mainnet.quiknode.pro&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl">  --header <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl">  --data <span class="s1">&#39;{
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;jsonrpc&#34;: &#34;2.0&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;id&#34;: 1,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;method&#34;: &#34;getTransaction&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;params&#34;: [
+</span></span></span><span class="line"><span class="cl"><span class="s1">      &#34;3SqLsNZcf3uMxDhYT8QNV75TcA9g3uWL5cuAGZN3pDR4DxDFffpC7SbDfvAQzFCKUJWo7KpsPSz89XsfmUSG4fz6&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">      {
+</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;encoding&#34;: &#34;jsonParsed&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;maxSupportedTransactionVersion&#34;: 0
+</span></span></span><span class="line"><span class="cl"><span class="s1">      }
+</span></span></span><span class="line"><span class="cl"><span class="s1">    ]
+</span></span></span><span class="line"><span class="cl"><span class="s1">  }&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>返回数据解析</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;jsonrpc&#34;</span><span class="p">:</span> <span class="s2">&#34;2.0&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;result&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;blockTime&#34;</span><span class="p">:</span> <span class="mi">1742282594</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;meta&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;slot&#34;</span><span class="p">:</span> <span class="mi">327522643</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;transaction&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;accountKeys&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                        <span class="nt">&#34;pubkey&#34;</span><span class="p">:</span> <span class="s2">&#34;updtkJ8HAhh3rSkBCd3p9Z1Q74yJW4rMhSbScRskDPM&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                        <span class="nt">&#34;signer&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                        <span class="nt">&#34;source&#34;</span><span class="p">:</span> <span class="s2">&#34;transaction&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                        <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                <span class="p">],</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;addressTableLookups&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="p">],</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;instructions&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                        <span class="nt">&#34;parsed&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;info&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                                <span class="nt">&#34;nonceAccount&#34;</span><span class="p">:</span> <span class="s2">&#34;NtTEpbR4sr4YoASTcc57QTsziFmoHAZ4jJFjDnN6PGr&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                <span class="nt">&#34;nonceAuthority&#34;</span><span class="p">:</span> <span class="s2">&#34;updtkJ8HAhh3rSkBCd3p9Z1Q74yJW4rMhSbScRskDPM&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                <span class="nt">&#34;recentBlockhashesSysvar&#34;</span><span class="p">:</span> <span class="s2">&#34;SysvarRecentB1ockHashes11111111111111111111&#34;</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;advanceNonce&#34;</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                        <span class="nt">&#34;program&#34;</span><span class="p">:</span> <span class="s2">&#34;system&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                        <span class="nt">&#34;programId&#34;</span><span class="p">:</span> <span class="s2">&#34;11111111111111111111111111111111&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                        <span class="nt">&#34;stackHeight&#34;</span><span class="p">:</span> <span class="kc">null</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                        <span class="nt">&#34;parsed&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;info&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                                <span class="nt">&#34;destination&#34;</span><span class="p">:</span> <span class="s2">&#34;ADaUMid9yfUytqMBgopwjb2DTLSokTSzL1zt6iGPaS49&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                <span class="nt">&#34;lamports&#34;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                <span class="nt">&#34;source&#34;</span><span class="p">:</span> <span class="s2">&#34;updtkJ8HAhh3rSkBCd3p9Z1Q74yJW4rMhSbScRskDPM&#34;</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;transfer&#34;</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                        <span class="nt">&#34;program&#34;</span><span class="p">:</span> <span class="s2">&#34;system&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                        <span class="nt">&#34;programId&#34;</span><span class="p">:</span> <span class="s2">&#34;11111111111111111111111111111111&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                        <span class="nt">&#34;stackHeight&#34;</span><span class="p">:</span> <span class="kc">null</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                <span class="p">],</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;recentBlockhash&#34;</span><span class="p">:</span> <span class="s2">&#34;4biM57FFoWV4o1ccvCZa1xXC9ZyCEbSnF8TryaFWqc9C&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;signatures&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;3SqLsNZcf3uMxDhYT8QNV75TcA9g3uWL5cuAGZN3pDR4DxDFffpC7SbDfvAQzFCKUJWo7KpsPSz89XsfmUSG4fz6&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;version&#34;</span><span class="p">:</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>parsed 的 info 里面信息</p>
+</li>
+<li>
+<p>source：出金地址</p>
+</li>
+<li>
+<p>destination：入金地址</p>
+</li>
+<li>
+<p>lamports：转账金额</p>
+</li>
+<li>
+<p>type：转账类型</p>
+</li>
+</ul>
+<h4 id="spl-token-类型的-token-交易解析">Spl-Token 类型的 Token 交易解析
+</h4><ul>
+<li>请求一笔 spl-token 转账交易</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">curl --location <span class="s1">&#39;https://docs-demo.solana-mainnet.quiknode.pro&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl">  --header <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl">  --data <span class="s1">&#39;{
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;jsonrpc&#34;: &#34;2.0&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;id&#34;: 1,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;method&#34;: &#34;getTransaction&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;params&#34;: [
+</span></span></span><span class="line"><span class="cl"><span class="s1">      &#34;Ng54UKCtt6sBn6QCKeiA3enDpaVUZG96BDVJhsXKfVEznTPYWxkjNSiKguziEWzH6zdkxSVMkg2Ev3wCS734mpU&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">      {
+</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;encoding&#34;: &#34;jsonParsed&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;maxSupportedTransactionVersion&#34;: 0
+</span></span></span><span class="line"><span class="cl"><span class="s1">      }
+</span></span></span><span class="line"><span class="cl"><span class="s1">    ]
+</span></span></span><span class="line"><span class="cl"><span class="s1">  }&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>spl-token 转账交易返回部分数据提取</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span><span class="lnt">86
+</span><span class="lnt">87
+</span><span class="lnt">88
+</span><span class="lnt">89
+</span><span class="lnt">90
+</span><span class="lnt">91
+</span><span class="lnt">92
+</span><span class="lnt">93
+</span><span class="lnt">94
+</span><span class="lnt">95
+</span><span class="lnt">96
+</span><span class="lnt">97
+</span><span class="lnt">98
+</span><span class="lnt">99
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;jsonrpc&#34;</span><span class="p">:</span> <span class="s2">&#34;2.0&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;result&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;blockTime&#34;</span><span class="p">:</span> <span class="mi">1742284419</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;meta&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;computeUnitsConsumed&#34;</span><span class="p">:</span> <span class="mi">284123</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;err&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;fee&#34;</span><span class="p">:</span> <span class="mi">39611</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;innerInstructions&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">&#34;index&#34;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">&#34;instructions&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;parsed&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                                <span class="nt">&#34;info&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nt">&#34;amount&#34;</span><span class="p">:</span> <span class="s2">&#34;50050141&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nt">&#34;authority&#34;</span><span class="p">:</span> <span class="s2">&#34;ExJpujKftyy53gHF3dTKo8bgCaR8yaqrxPYtj48gWxyb&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nt">&#34;destination&#34;</span><span class="p">:</span> <span class="s2">&#34;8zgvk7zxbuhq8d3Xt9fAaGTXynp5WYYKGyzN2dnVsdmE&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nt">&#34;source&#34;</span><span class="p">:</span> <span class="s2">&#34;CjiDdqbJmGKm3er8rXRVrkNK9RfNT7iWyTPcfH6x8KHX&#34;</span>
+</span></span><span class="line"><span class="cl">                                <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                                <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;transfer&#34;</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;program&#34;</span><span class="p">:</span> <span class="s2">&#34;spl-token&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;programId&#34;</span><span class="p">:</span> <span class="s2">&#34;TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;stackHeight&#34;</span><span class="p">:</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">&#34;index&#34;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">&#34;instructions&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;parsed&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                                <span class="nt">&#34;info&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nt">&#34;amount&#34;</span><span class="p">:</span> <span class="s2">&#34;50050141&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nt">&#34;authority&#34;</span><span class="p">:</span> <span class="s2">&#34;JD38n7ynKYcgPpF7k1BhXEeREu1KqptU93fVGy3S624k&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nt">&#34;destination&#34;</span><span class="p">:</span> <span class="s2">&#34;m3BrPbv2TFmZZTPpyB9NgsCXqGNujpXvzvGqj8ksars&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nt">&#34;source&#34;</span><span class="p">:</span> <span class="s2">&#34;8zgvk7zxbuhq8d3Xt9fAaGTXynp5WYYKGyzN2dnVsdmE&#34;</span>
+</span></span><span class="line"><span class="cl">                                <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                                <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;transfer&#34;</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;program&#34;</span><span class="p">:</span> <span class="s2">&#34;spl-token&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;programId&#34;</span><span class="p">:</span> <span class="s2">&#34;TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;stackHeight&#34;</span><span class="p">:</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;parsed&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                                <span class="nt">&#34;info&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nt">&#34;amount&#34;</span><span class="p">:</span> <span class="s2">&#34;50050141&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nt">&#34;authority&#34;</span><span class="p">:</span> <span class="s2">&#34;4xDsmeTWPNjgSVSS1VTfzFq3iHZhp77ffPkAmkZkdu71&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nt">&#34;destination&#34;</span><span class="p">:</span> <span class="s2">&#34;3bWPj5eepJm8CxUzk5MMFMN2CFJkntxKvbmy4zwwtpJd&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nt">&#34;source&#34;</span><span class="p">:</span> <span class="s2">&#34;m3BrPbv2TFmZZTPpyB9NgsCXqGNujpXvzvGqj8ksars&#34;</span>
+</span></span><span class="line"><span class="cl">                                <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                                <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;transfer&#34;</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;program&#34;</span><span class="p">:</span> <span class="s2">&#34;spl-token&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;programId&#34;</span><span class="p">:</span> <span class="s2">&#34;TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;stackHeight&#34;</span><span class="p">:</span> <span class="mi">3</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;parsed&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                                <span class="nt">&#34;info&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nt">&#34;amount&#34;</span><span class="p">:</span> <span class="s2">&#34;400084209&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nt">&#34;authority&#34;</span><span class="p">:</span> <span class="s2">&#34;CYbD9RaToYMtWKA7QZyoLahnHdWq553Vm62Lh6qWtuxq&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nt">&#34;destination&#34;</span><span class="p">:</span> <span class="s2">&#34;6zAcFYmxkaH25qWZW5ek4dk4SyQNpSza3ydSoUxjTudD&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nt">&#34;source&#34;</span><span class="p">:</span> <span class="s2">&#34;GviiXg2Xc1xCpyNY36r7h1EAy7uvse5UMkiiyHjRDU6Z&#34;</span>
+</span></span><span class="line"><span class="cl">                                <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                                <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;transfer&#34;</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;program&#34;</span><span class="p">:</span> <span class="s2">&#34;spl-token&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;programId&#34;</span><span class="p">:</span> <span class="s2">&#34;TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;stackHeight&#34;</span><span class="p">:</span> <span class="mi">3</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;parsed&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                                <span class="nt">&#34;info&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nt">&#34;amount&#34;</span><span class="p">:</span> <span class="s2">&#34;7617591708&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nt">&#34;authority&#34;</span><span class="p">:</span> <span class="s2">&#34;4xDsmeTWPNjgSVSS1VTfzFq3iHZhp77ffPkAmkZkdu71&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nt">&#34;destination&#34;</span><span class="p">:</span> <span class="s2">&#34;c7i6v5d9aXbpfnQPzfxLJ3poM2aa2N1irTz1tGJi1jf&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nt">&#34;source&#34;</span><span class="p">:</span> <span class="s2">&#34;H39NXe6j2UVuLMMA9onuas3aFCsU2eXxdTcNXX7usN8u&#34;</span>
+</span></span><span class="line"><span class="cl">                                <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                                <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;transfer&#34;</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;program&#34;</span><span class="p">:</span> <span class="s2">&#34;spl-token&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;programId&#34;</span><span class="p">:</span> <span class="s2">&#34;TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;stackHeight&#34;</span><span class="p">:</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;recentBlockhash&#34;</span><span class="p">:</span> <span class="s2">&#34;9q8MbtrJ4fXWw8op5NjKfKjc4gFRB54t4drQjzoAnb2F&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;signatures&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Ng54UKCtt6sBn6QCKeiA3enDpaVUZG96BDVJhsXKfVEznTPYWxkjNSiKguziEWzH6zdkxSVMkg2Ev3wCS734mpU&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;version&#34;</span><span class="p">:</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>program：spl-token 类型交易</p>
+</li>
+<li>
+<p>type：transfer 为转账类型</p>
+</li>
+<li>
+<p>source：出金地址</p>
+</li>
+<li>
+<p>destination：入金地址</p>
+</li>
+<li>
+<p>lamports：转账金额</p>
+</li>
+</ul>
+<h4 id="spl-token-类型的-nft-交易解析">Spl-Token 类型的 NFT 交易解析
+</h4><ul>
+<li>请求应答过程如上，数据片段截取如下</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;parsed&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;info&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;destination&#34;</span><span class="p">:</span> <span class="s2">&#34;8JhrZdMpkhLsSVKjpKEQnyQhuQgLAniaGV6ybdtb6Ad1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;mint&#34;</span><span class="p">:</span> <span class="s2">&#34;CnB32foaJLZTc2LZACC9h9Mef97WLFkvBXVGuqcpGxLZ&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;multisigAuthority&#34;</span><span class="p">:</span> <span class="s2">&#34;HCx3yTcPGyTFu4PStzWKzwyJzm2R2mmUnEhbAQed7Syr&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;signers&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;HCx3yTcPGyTFu4PStzWKzwyJzm2R2mmUnEhbAQed7Syr&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;source&#34;</span><span class="p">:</span> <span class="s2">&#34;DqSaDbr2qgfWpZpCsJMQEoo9qnCEYMoT2CFMkrhCdjFx&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;tokenAmount&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;amount&#34;</span><span class="p">:</span> <span class="s2">&#34;1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;decimals&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;uiAmount&#34;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;uiAmountString&#34;</span><span class="p">:</span> <span class="s2">&#34;1&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;transferChecked&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>parsed 里面的交易</p>
+</li>
+<li>
+<p>program：spl-token 类型交易</p>
+</li>
+<li>
+<p>source：出金地址</p>
+</li>
+<li>
+<p>destination：入金地址</p>
+</li>
+<li>
+<p>tokenAmount：为对应转账的 NFT 信息</p>
+</li>
+<li>
+<p>type：为 transfer 或者 transferChecked</p>
+</li>
+</ul>
+<h4 id="spl-token-常见的操作类别">Spl-token 常见的操作类别
+</h4><h5 id="直接转账">直接转账
+</h5><ul>
+<li>
+<p>直接转账（Transfer 指令）：从当前账户（Owner）向另一个 Token Account 发送一定数量的代币</p>
+</li>
+<li>
+<p>调用方式：通常在客户端或合约（CPI 调用）中，会构造一个指令 Transfer { amount }，并指定：</p>
+</li>
+<li>
+<p>源账户：要转出的 Token Account</p>
+</li>
+<li>
+<p>目标账户：要接收的 Token Account</p>
+</li>
+<li>
+<p>Authority：源账户的 Owner（需要签名）</p>
+</li>
+<li>
+<p>调用指令：spl_token::instruction::transfer(&hellip;) 或 transfer_checked(&hellip;)；</p>
+</li>
+<li>
+<p>特点</p>
+<ul>
+<li>
+<p>不会去检查你传入的 amount 是否符合代币的 decimals 精度，可能会导致超出小数精度的意外输入</p>
+</li>
+<li>
+<p>一般建议使用 TransferChecked（见下），除非你非常确定自己处理好了精度。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="带精度检查的转账">带精度检查的转账
+</h5><ul>
+<li>
+<p>带精度检查的转账（TransferChecked 指令）：与普通 Transfer 类似，但会强制检查 amount 是否与该 Token 的 decimals 相匹配</p>
+</li>
+<li>
+<p>调用方式：指令 TransferChecked { amount, decimals }，需要多传一个 decimals 参数，用于程序内部做验证。</p>
+</li>
+<li>
+<p>特点：</p>
+<ul>
+<li>
+<p>能显式地确保不会错误传入“少/多”小数位的 amount。</p>
+</li>
+<li>
+<p>对于高精度 Token 来说更安全，也能帮助开发者避免精度错误。</p>
+</li>
+<li>
+<p>建议大多数情况下都用 TransferChecked，除非要兼容旧版本或有特殊需求。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="授权代理转账">授权代理转账
+</h5><ul>
+<li>
+<p>授权代理转账（Approve + Transfer / TransferChecked）：将账户中的一部分代币授权给 “Delegate” 地址，由此 Delegate 可以帮你在后续发起转账操作，而无需账户 Owner 每次都签名。</p>
+</li>
+<li>
+<p>调用过程：</p>
+<ul>
+<li>
+<p>Approve：账户 Owner 调用 Approve 指令，指定 delegate 地址和授权限额（allowance）</p>
+</li>
+<li>
+<p>Transfer（或 TransferChecked）：在后续的转账中，Delegate 地址用自己的签名发起，使用 source_account 作为源账户，并提供 delegate 作为授权人，即可从该源账户转走不超过 allowance 的代币。</p>
+</li>
+<li>
+<p>当授权过期（或不用了）时，可以由账户 Owner 调用 Revoke 指令收回授权。</p>
+</li>
+</ul>
+</li>
+<li>
+<p>特点：</p>
+<ul>
+<li>
+<p>常用于去中心化交易所、借贷协议等需要“合约代为扣款”的场景。</p>
+</li>
+<li>
+<p>跟 ERC-20 的 “approve / transferFrom” 模式类似。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="内部调用--program-to-program-调用cpi">内部调用 / Program-to-Program 调用（CPI）
+</h5><p>当一个 Solana Program（合约）要在运行时去转移某些 SPL Token 时，需要CPI（Cross-Program Invocation） 调用 SPL Token Program 的 “transfer” 或 “transfer_checked” 指令：例如，合约 A 在执行时，需要从用户的 Token Account 转到合约的 Token Account：</p>
+<ul>
+<li>
+<p>用户先把自己的 Token Account “delegate” 授权给合约（或给合约的 PDA），合约就有权从用户账户中转出代币；合约里再通过 CPI 调用 SPL Token Program 的 transfer / transfer_checked；以合约自身（或其 PDA）作为签名者。这一过程不会产生新的外部交易，而是同一笔交易内发生的链上合约内部调用。最终效果依旧是某个 Token Account 被扣减，一定数量的 Token 转移到目标账户。</p>
+</li>
+<li>
+<p>是否需要 Approve + Transfer 取决于合约逻辑：</p>
+<ul>
+<li>
+<p>如果用户在调用合约前就给了合约或 PDA 授权（delegate），合约就能发起 transfer;</p>
+</li>
+<li>
+<p>或者用户直接在同一个交易中提供签名，让合约在 CPI 时使用“owner 权限”扣款（需小心安全性）。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="多签-multisig-转账">多签 (Multisig) 转账
+</h5><ul>
+<li>
+<p>多签 (Multisig) 转账：某些场景下需要多签（multisig）账户来管理代币，SPL Token Program 原生支持多签功能：</p>
+</li>
+<li>
+<p>可以使用 InitializeMultisig 来创建多签 Token Account authority（最多可支持 11 个签名），设定 M-of-N 的阈值。之后对于相关指令（如 Transfer），就需要满足多签的签名数量才能执行。</p>
+</li>
+<li>
+<p>特点：</p>
+<ul>
+<li>
+<p>多签仅针对**“账户权限”** （比如 Mint authority，Account owner，Freeze authority 等）。</p>
+</li>
+<li>
+<p>对于生产环境中需要更安全的 Token Mint 管理，也经常用多签作为 Mint Authority，防止单人私钥丢失或作恶。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="冻结解冻场景下的转账">冻结/解冻场景下的转账
+</h5><p>冻结/解冻场景下的转账（Freeze / Thaw）：如果在创建 SPL Token 时设置了 freeze_authority，该地址就能对某些 Token Account 执行 freeze 操作，被冻结的账户无法再执行转账：</p>
+<ul>
+<li>
+<p>若一个 Token Account 已被冻结，就无法完成任何转账指令，直到 thaw（解冻）。</p>
+</li>
+<li>
+<p>这种场景在合规场合或需要黑名单机制时会用到。</p>
+</li>
+<li>
+<p>从“转账分类”角度看，冻结状态只是阻止转账的状态，并没有改变“转账”指令本身的种类；但确实会影响能否成功转账。</p>
+</li>
+</ul>
+<h5 id="关闭账户closeaccount隐含的转出剩余动作">关闭账户（CloseAccount）隐含的“转出剩余”动作
+</h5><ul>
+<li>
+<p>当你调用 CloseAccount 指令关闭一个 Token Account 时，剩余余额会被自动转到指定的收款账户（通常是同一 Owner 的另一个 Token Account 或 Owner 主钱包）。</p>
+</li>
+<li>
+<p>这也算一种“特殊的转出”，但是它是清空并关闭的操作，与常规 “transfer” 指令不同。</p>
+</li>
+</ul>
+<h3 id="离线地址生成和离线签名">离线地址生成和离线签名
+</h3><h4 id="离线地址生成">离线地址生成
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="k">export</span> <span class="n">function</span> <span class="n">createSolAddress</span> <span class="p">(</span><span class="n">seedHex</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span> <span class="n">addressIndex</span><span class="p">:</span> <span class="n">string</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="p">{</span> <span class="n">key</span> <span class="p">}</span> <span class="o">=</span> <span class="n">derivePath</span><span class="p">(</span><span class="s2">&#34;m/44&#39;/501&#39;/0&#39;/&#34;</span> <span class="o">+</span> <span class="n">addressIndex</span> <span class="o">+</span> <span class="s2">&#34;&#39;&#34;</span><span class="p">,</span> <span class="n">seedHex</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">publicKey</span> <span class="o">=</span> <span class="n">getPublicKey</span><span class="p">(</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span> <span class="n">new</span> <span class="n">Uint8Array</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="bp">false</span><span class="p">)</span><span class="o">.</span><span class="n">toString</span><span class="p">(</span><span class="s1">&#39;hex&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">buffer</span> <span class="o">=</span> <span class="n">Buffer</span><span class="o">.</span><span class="n">from</span><span class="p">(</span><span class="n">getPublicKey</span><span class="p">(</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span> <span class="n">new</span> <span class="n">Uint8Array</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="bp">false</span><span class="p">)</span><span class="o">.</span><span class="n">toString</span><span class="p">(</span><span class="s1">&#39;hex&#39;</span><span class="p">),</span> <span class="s1">&#39;hex&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">address</span> <span class="o">=</span> <span class="n">bs58</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">hdWallet</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">privateKey</span><span class="p">:</span> <span class="n">key</span><span class="o">.</span><span class="n">toString</span><span class="p">(</span><span class="s1">&#39;hex&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">publicKey</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">publicKey</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">address</span>
+</span></span><span class="line"><span class="cl">    <span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">stringify</span><span class="p">(</span><span class="n">hdWallet</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="离线签名">离线签名
+</h4><ul>
+<li>
+<p>手续费模型：https://x.com/0xtheweb3/status/1891121882302480731</p>
+</li>
+<li>
+<p>Sol 离线签名</p>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="n">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">function</span><span class="w"> </span><span class="n">signSolTransaction</span><span class="p">(</span><span class="n">params</span>: <span class="nc">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">txObj</span>: <span class="p">{</span><span class="w"> </span><span class="n">from</span><span class="p">,</span><span class="w"> </span><span class="n">amount</span><span class="p">,</span><span class="w"> </span><span class="n">to</span><span class="p">,</span><span class="w"> </span><span class="n">nonce</span><span class="p">,</span><span class="w"> </span><span class="n">decimal</span><span class="w"> </span><span class="p">},</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">privateKey</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">privateKey</span><span class="p">)</span><span class="w"> </span><span class="n">throw</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">Error</span><span class="p">(</span><span class="s">&#34;privateKey 为空&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="n">fromAccount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Keypair</span><span class="p">.</span><span class="n">fromSecretKey</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">new</span><span class="w"> </span><span class="n">Uint8Array</span><span class="p">(</span><span class="n">Buffer</span><span class="p">.</span><span class="n">from</span><span class="p">(</span><span class="n">privateKey</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;hex&#34;</span><span class="p">))</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="n">calcAmount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">BigNumber</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">times</span><span class="p">(</span><span class="n">new</span><span class="w"> </span><span class="n">BigNumber</span><span class="p">(</span><span class="mi">10</span><span class="p">).</span><span class="n">pow</span><span class="p">(</span><span class="n">decimal</span><span class="p">))</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">toString</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">calcAmount</span><span class="p">.</span><span class="n">indexOf</span><span class="p">(</span><span class="s">&#34;.&#34;</span><span class="p">)</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">throw</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">Error</span><span class="p">(</span><span class="s">&#34;decimal 无效&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="n">tx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">Transaction</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="n">toPubkey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">PublicKey</span><span class="p">(</span><span class="n">to</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">tx</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">SystemProgram</span><span class="p">.</span><span class="n">transfer</span><span class="p">({</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">fromPubkey</span>: <span class="nc">fromAccount</span><span class="p">.</span><span class="n">publicKey</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">toPubkey</span>: <span class="nc">toPubkey</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">lamports</span>: <span class="nc">calcAmount</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">})</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">tx</span><span class="p">.</span><span class="n">recentBlockhash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nonce</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">tx</span><span class="p">.</span><span class="n">sign</span><span class="p">(</span><span class="n">fromAccount</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">tx</span><span class="p">.</span><span class="n">serialize</span><span class="p">().</span><span class="n">toString</span><span class="p">(</span><span class="s">&#34;base64&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>nonce 使用 solana 最新区块 Hash 的话，它是有有效期，这种操作在 HD 钱包里面是适合的，但是他在交易钱包面，可能会引发不必要操作；当时 solana 也提供一中 nonce 永久有效期，需要绑定一个 nonceAccount, 由这个 nonceAccount 来获取 Nonce 参与离线签名。</p>
+</li>
+<li>
+<p>recentBlockhash 的失效本质上是该区块哈希超出了 Solana 的 MAX_RECENT_BLOCKHASHES 维护范围。在 Solana 的运行机制中，最近的区块哈希只会存储 约 150 个 slot（大约 ~75 秒），超过这个范围的哈希就会被丢弃。</p>
+</li>
+<li>
+<p>Nonce Account 创建</p>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="n">export</span><span class="w"> </span><span class="n">function</span><span class="w"> </span><span class="n">prepareAccount</span><span class="p">(</span><span class="n">params</span>: <span class="nc">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">authorAddress</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">nonceAccountAddress</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">recentBlockhash</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">minBalanceForRentExemption</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">privs</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="n">authorPrivateKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">privs</span><span class="o">?</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">(</span><span class="n">ele</span>: <span class="p">{</span><span class="w"> </span><span class="n">address</span>: <span class="nc">any</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ele</span><span class="p">.</span><span class="n">address</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="n">authorAddress</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">)</span><span class="o">?</span><span class="p">.</span><span class="n">key</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">authorPrivateKey</span><span class="p">)</span><span class="w"> </span><span class="n">throw</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">Error</span><span class="p">(</span><span class="s">&#34;authorPrivateKey 为空&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="n">nonceAcctPrivateKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">privs</span><span class="o">?</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">(</span><span class="n">ele</span>: <span class="p">{</span><span class="w"> </span><span class="n">address</span>: <span class="nc">any</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ele</span><span class="p">.</span><span class="n">address</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="n">nonceAccountAddress</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">)</span><span class="o">?</span><span class="p">.</span><span class="n">key</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">nonceAcctPrivateKey</span><span class="p">)</span><span class="w"> </span><span class="n">throw</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">Error</span><span class="p">(</span><span class="s">&#34;nonceAcctPrivateKey 为空&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Keypair</span><span class="p">.</span><span class="n">fromSecretKey</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">new</span><span class="w"> </span><span class="n">Uint8Array</span><span class="p">(</span><span class="n">Buffer</span><span class="p">.</span><span class="n">from</span><span class="p">(</span><span class="n">authorPrivateKey</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;hex&#34;</span><span class="p">))</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="n">nonceAccount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Keypair</span><span class="p">.</span><span class="n">fromSecretKey</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">new</span><span class="w"> </span><span class="n">Uint8Array</span><span class="p">(</span><span class="n">Buffer</span><span class="p">.</span><span class="n">from</span><span class="p">(</span><span class="n">nonceAcctPrivateKey</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;hex&#34;</span><span class="p">))</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="n">tx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">Transaction</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">tx</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">SystemProgram</span><span class="p">.</span><span class="n">createAccount</span><span class="p">({</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">fromPubkey</span>: <span class="nc">author</span><span class="p">.</span><span class="n">publicKey</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">newAccountPubkey</span>: <span class="nc">nonceAccount</span><span class="p">.</span><span class="n">publicKey</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">lamports</span>: <span class="nc">minBalanceForRentExemption</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">space</span>: <span class="nc">NONCE_ACCOUNT_L</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>完整的离线签名代码</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="n">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">function</span><span class="w"> </span><span class="n">signSolTransaction</span><span class="p">(</span><span class="n">params</span>: <span class="nc">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">txObj</span>: <span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">from</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">amount</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">to</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">nonce</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">decimal</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">mintAddress</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">hasCreatedTokenAddr</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">},</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">privateKey</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">privateKey</span><span class="p">)</span><span class="w"> </span><span class="n">throw</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">Error</span><span class="p">(</span><span class="s">&#34;privateKey 为空&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="n">fromAccount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Keypair</span><span class="p">.</span><span class="n">fromSecretKey</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">new</span><span class="w"> </span><span class="n">Uint8Array</span><span class="p">(</span><span class="n">Buffer</span><span class="p">.</span><span class="n">from</span><span class="p">(</span><span class="n">privateKey</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;hex&#34;</span><span class="p">))</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="n">calcAmount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">BigNumber</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">times</span><span class="p">(</span><span class="n">new</span><span class="w"> </span><span class="n">BigNumber</span><span class="p">(</span><span class="mi">10</span><span class="p">).</span><span class="n">pow</span><span class="p">(</span><span class="n">decimal</span><span class="p">))</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">toString</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">calcAmount</span><span class="p">.</span><span class="n">indexOf</span><span class="p">(</span><span class="s">&#34;.&#34;</span><span class="p">)</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">throw</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">Error</span><span class="p">(</span><span class="s">&#34;decimal 无效&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="n">tx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">Transaction</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="n">tx1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">Transaction</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="n">toPubkey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">PublicKey</span><span class="p">(</span><span class="n">to</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="n">fromPubkey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">PublicKey</span><span class="p">(</span><span class="n">from</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mintAddress</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&#34;0x00&#34;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">mint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">PublicKey</span><span class="p">(</span><span class="n">mintAddress</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">fromTokenAccount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">SPLToken</span><span class="p">.</span><span class="n">Token</span><span class="p">.</span><span class="n">getAssociatedTokenAddress</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">SPLToken</span><span class="p">.</span><span class="no">ASSOCIATED_TOKEN_PROGRAM_ID</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">SPLToken</span><span class="p">.</span><span class="no">TOKEN_PROGRAM_ID</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">mint</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">fromPubkey</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">toTokenAccount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">SPLToken</span><span class="p">.</span><span class="n">Token</span><span class="p">.</span><span class="n">getAssociatedTokenAddress</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">SPLToken</span><span class="p">.</span><span class="no">ASSOCIATED_TOKEN_PROGRAM_ID</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">SPLToken</span><span class="p">.</span><span class="no">TOKEN_PROGRAM_ID</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">mint</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">toPubkey</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">tx</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">SPLToken</span><span class="p">.</span><span class="n">Token</span><span class="p">.</span><span class="n">createTransferInstruction</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">SPLToken</span><span class="p">.</span><span class="no">TOKEN_PROGRAM_ID</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">fromTokenAccount</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">toTokenAccount</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">fromPubkey</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">[</span><span class="n">fromAccount</span><span class="p">],</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">calcAmount</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">hasCreatedTokenAddr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">tx1</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">SPLToken</span><span class="p">.</span><span class="n">Token</span><span class="p">.</span><span class="n">createAssociatedTokenAccountInstruction</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="n">SPLToken</span><span class="p">.</span><span class="no">ASSOCIATED_TOKEN_PROGRAM_ID</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="n">SPLToken</span><span class="p">.</span><span class="no">TOKEN_PROGRAM_ID</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="n">mint</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="n">toTokenAccount</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="n">toPubkey</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="n">fromAccount</span><span class="p">.</span><span class="n">publicKey</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">SPLToken</span><span class="p">.</span><span class="n">Token</span><span class="p">.</span><span class="n">createTransferInstruction</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="n">SPLToken</span><span class="p">.</span><span class="no">TOKEN_PROGRAM_ID</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="n">fromTokenAccount</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="n">toTokenAccount</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="n">fromPubkey</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="p">[</span><span class="n">fromAccount</span><span class="p">],</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="n">calcAmount</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">tx</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">SystemProgram</span><span class="p">.</span><span class="n">transfer</span><span class="p">({</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">fromPubkey</span>: <span class="nc">fromAccount</span><span class="p">.</span><span class="n">publicKey</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">toPubkey</span>: <span class="nc">toPubkey</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">lamports</span>: <span class="nc">calcAmount</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="p">})</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">tx</span><span class="p">.</span><span class="n">recentBlockhash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nonce</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">tx</span><span class="p">.</span><span class="n">sign</span><span class="p">(</span><span class="n">fromAccount</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="n">serializeMsg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tx</span><span class="p">.</span><span class="n">serialize</span><span class="p">().</span><span class="n">toString</span><span class="p">(</span><span class="s">&#34;base64&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mintAddress</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&#34;0x00&#34;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">hasCreatedTokenAddr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">tx1</span><span class="p">.</span><span class="n">recentBlockhash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nonce</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">tx1</span><span class="p">.</span><span class="n">sign</span><span class="p">(</span><span class="n">fromAccount</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="k">const</span><span class="w"> </span><span class="n">serializeMsg1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tx1</span><span class="p">.</span><span class="n">serialize</span><span class="p">().</span><span class="n">toString</span><span class="p">(</span><span class="s">&#34;base64&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="no">JSON</span><span class="p">.</span><span class="n">stringify</span><span class="p">([</span><span class="n">serializeMsg1</span><span class="p">,</span><span class="w"> </span><span class="n">serializeMsg</span><span class="p">]);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="no">JSON</span><span class="p">.</span><span class="n">stringify</span><span class="p">([</span><span class="n">serializeMsg</span><span class="p">]);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">serializeMsg</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>注意：solana 是一个账户分离比较明显公链，他的 nonce 和 staking 等操作的账户都是分离，不能使用主账户做为 nonce 获取，或者是 staking 的操作。</li>
+</ul>
+<h3 id="区块交易数据解析细节">区块交易数据解析细节
+</h3><h4 id="获取最新区块">获取最新区块
+</h4><ul>
+<li>Request</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">curl --location <span class="s1">&#39;https://api.mainnet-beta.solana.com&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl">  --header <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl">  --data <span class="s1">&#39;{
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;jsonrpc&#34;: &#34;2.0&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;id&#34;: 1,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;method&#34;: &#34;getSlot&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s1">  }&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>Response</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;jsonrpc&#34;</span><span class="p">:</span> <span class="s2">&#34;2.0&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;result&#34;</span><span class="p">:</span> <span class="mi">321212980</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="根据-slot-获取里面的交易信息">根据 slot 获取里面的交易信息
+</h4><ul>
+<li>Request</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">curl --location <span class="s1">&#39;https://api.mainnet-beta.solana.com&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl">  --header <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl">  --data <span class="s1">&#39;{
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;jsonrpc&#34;: &#34;2.0&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;id&#34;: 1,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;method&#34;: &#34;getBlock&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;params&#34;: [
+</span></span></span><span class="line"><span class="cl"><span class="s1">      321212915,
+</span></span></span><span class="line"><span class="cl"><span class="s1">      {
+</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;encoding&#34;: &#34;json&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;maxSupportedTransactionVersion&#34;: 0,
+</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;transactionDetails&#34;: &#34;full&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;rewards&#34;: false
+</span></span></span><span class="line"><span class="cl"><span class="s1">      }
+</span></span></span><span class="line"><span class="cl"><span class="s1">    ]
+</span></span></span><span class="line"><span class="cl"><span class="s1">  }&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>Reponse</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;jsonrpc&#34;</span><span class="p">:</span> <span class="s2">&#34;2.0&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;result&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;blockHeight&#34;</span><span class="p">:</span> <span class="mi">299484166</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;blockTime&#34;</span><span class="p">:</span> <span class="mi">1739779958</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;blockhash&#34;</span><span class="p">:</span> <span class="s2">&#34;GVZViozQpMNVo2QykcYY8uXiEivuh5bj2yrzJaj1N13G&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;parentSlot&#34;</span><span class="p">:</span> <span class="mi">321212914</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;previousBlockhash&#34;</span><span class="p">:</span> <span class="s2">&#34;GY6WYJtVAdcpPKPrzp2XKyHq1Hv5TE9DgfGKgtUzamSF&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;transactions&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;meta&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;computeUnitsConsumed&#34;</span><span class="p">:</span> <span class="mi">2100</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;err&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;fee&#34;</span><span class="p">:</span> <span class="mi">5000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;innerInstructions&#34;</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;loadedAddresses&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;readonly&#34;</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;logMessages&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Program Vote111111111111111111111111111111111111111 invoke [1]&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Program Vote111111111111111111111111111111111111111 success&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;postBalances&#34;</span><span class="p">:</span> <span class="p">[</span><span class="mi">338735285</span><span class="p">,</span> <span class="mi">345627336</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;postTokenBalances&#34;</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;preBalances&#34;</span><span class="p">:</span> <span class="p">[</span><span class="mi">338740285</span><span class="p">,</span> <span class="mi">345627336</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;preTokenBalances&#34;</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;rewards&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;status&#34;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&#34;Ok&#34;</span><span class="p">:</span> <span class="kc">null</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;transaction&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;accountKeys&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">              <span class="s2">&#34;5tFvFBWUPt94HQuZyMSuHnpcHrjMPLrTg8WBbv9G5VqU&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">              <span class="s2">&#34;8ZvTbWfA7txjkNubA9jnv8CWQtwbaZSzpf7vaDDcxMr5&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">              <span class="s2">&#34;Vote111111111111111111111111111111111111111&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">],</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;header&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;numReadonlySignedAccounts&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;numReadonlyUnsignedAccounts&#34;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;numRequiredSignatures&#34;</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;instructions&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">              <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;accounts&#34;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="s2">&#34;Fk63PzyswKX45TJ5DTXF4NmW4fv1Aqunm1rwhEtDeiCzyp4MCfVhdzkuTRtGeZDJYcqywdGueH328rzPMuDbCVvHZNXHjDkgjBgqbkD8mqWTpSqSABomEZoYnw2cC7NcWwQxSsY67tiXad9mDQWyh8egLgFuXd&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;programIdIndex&#34;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;stackHeight&#34;</span><span class="p">:</span> <span class="kc">null</span>
+</span></span><span class="line"><span class="cl">              <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="p">],</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;recentBlockhash&#34;</span><span class="p">:</span> <span class="s2">&#34;CMHc5t1GQWacarX7uf3SuMu6RqTmbNAWRT7i7SnbH7vs&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;signatures&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;5i2vTYwnjcBPLUACjk2TyxPsfv61WzwzkBBkcHLXjnVHKaYGnE1QNbj6QYf1nhmu9f8vWrnSHG8V3GdL222cMDtM&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;version&#34;</span><span class="p">:</span> <span class="s2">&#34;legacy&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="根据交易-hash-获取交易信息">根据交易 Hash 获取交易信息
+</h4><ul>
+<li>Request</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">curl --location &#39;https://api.mainnet-beta.solana.com&#39; \
+</span></span><span class="line"><span class="cl">  --header &#39;Content-Type: application/json&#39; \
+</span></span><span class="line"><span class="cl">  --data &#39;{
+</span></span><span class="line"><span class="cl">    &#34;jsonrpc&#34;: &#34;2.0&#34;,
+</span></span><span class="line"><span class="cl">    &#34;id&#34;: 1,
+</span></span><span class="line"><span class="cl">    &#34;method&#34;: &#34;getTransaction&#34;,
+</span></span><span class="line"><span class="cl">    &#34;params&#34;: [
+</span></span><span class="line"><span class="cl">      &#34;3HfCXxiRS4fT5UvneVvwE8ezCxxSykZKPzekt8At6uXA2ArF3utg1N87CdCjrkN71tMXLf1GmzZZbAUYzVTjiAqc&#34;,
+</span></span><span class="line"><span class="cl">      {
+</span></span><span class="line"><span class="cl">        &#34;encoding&#34;: &#34;jsonParsed&#34;,
+</span></span><span class="line"><span class="cl">        &#34;maxSupportedTransactionVersion&#34;: 0
+</span></span><span class="line"><span class="cl">      }
+</span></span><span class="line"><span class="cl">    ]
+</span></span><span class="line"><span class="cl">  }&#39;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>Response</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;jsonrpc&#34;</span><span class="p">:</span> <span class="s2">&#34;2.0&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;result&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;blockTime&#34;</span><span class="p">:</span> <span class="mi">1739779958</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;meta&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;computeUnitsConsumed&#34;</span><span class="p">:</span> <span class="mi">150</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;err&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;fee&#34;</span><span class="p">:</span> <span class="mi">5000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;innerInstructions&#34;</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;logMessages&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Program 11111111111111111111111111111111 invoke [1]&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Program 11111111111111111111111111111111 success&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;postBalances&#34;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">440935865146</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;postTokenBalances&#34;</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;preBalances&#34;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2342169719</span><span class="p">,</span> <span class="mi">438593700427</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;preTokenBalances&#34;</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;rewards&#34;</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;status&#34;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&#34;Ok&#34;</span><span class="p">:</span> <span class="kc">null</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;slot&#34;</span><span class="p">:</span> <span class="mi">321212915</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;transaction&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;accountKeys&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">          <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;pubkey&#34;</span><span class="p">:</span> <span class="s2">&#34;DhuCmoKiDRPn9Lw26LFDNDQ7kJVAitZ9hgfGFSpPdWy3&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;signer&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;source&#34;</span><span class="p">:</span> <span class="s2">&#34;transaction&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;pubkey&#34;</span><span class="p">:</span> <span class="s2">&#34;4nRcLpDJ5Mzi41MdePjdLJ6XxboHYUqG7uDB4xkPXvV2&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;signer&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;source&#34;</span><span class="p">:</span> <span class="s2">&#34;transaction&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;pubkey&#34;</span><span class="p">:</span> <span class="s2">&#34;11111111111111111111111111111111&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;signer&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;source&#34;</span><span class="p">:</span> <span class="s2">&#34;transaction&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">          <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;addressTableLookups&#34;</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;instructions&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">          <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;parsed&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;info&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;destination&#34;</span><span class="p">:</span> <span class="s2">&#34;4nRcLpDJ5Mzi41MdePjdLJ6XxboHYUqG7uDB4xkPXvV2&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;lamports&#34;</span><span class="p">:</span> <span class="mi">2342164719</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;source&#34;</span><span class="p">:</span> <span class="s2">&#34;DhuCmoKiDRPn9Lw26LFDNDQ7kJVAitZ9hgfGFSpPdWy3&#34;</span>
+</span></span><span class="line"><span class="cl">              <span class="p">},</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;transfer&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;program&#34;</span><span class="p">:</span> <span class="s2">&#34;system&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;programId&#34;</span><span class="p">:</span> <span class="s2">&#34;11111111111111111111111111111111&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;stackHeight&#34;</span><span class="p">:</span> <span class="kc">null</span>
+</span></span><span class="line"><span class="cl">          <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;recentBlockhash&#34;</span><span class="p">:</span> <span class="s2">&#34;FN2dGqe6RqZvyJdAAg2RKghTc63ZApKZrs3FTAjnnYv2&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;signatures&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;3HfCXxiRS4fT5UvneVvwE8ezCxxSykZKPzekt8At6uXA2ArF3utg1N87CdCjrkN71tMXLf1GmzZZbAUYzVTjiAqc&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;version&#34;</span><span class="p">:</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="获取-recentblockhash">获取 recentBlockHash
+</h4><ul>
+<li>Request</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">curl --location <span class="s1">&#39;https://api.mainnet-beta.solana.com&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl">  --header <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl">  --data <span class="s1">&#39;{
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;id&#34;: 1,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;jsonrpc&#34;: &#34;2.0&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;method&#34;: &#34;getLatestBlockhash&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;params&#34;: [
+</span></span></span><span class="line"><span class="cl"><span class="s1">      {
+</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;commitment&#34;: &#34;processed&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s1">      }
+</span></span></span><span class="line"><span class="cl"><span class="s1">    ]
+</span></span></span><span class="line"><span class="cl"><span class="s1">  }&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>Response</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;jsonrpc&#34;</span><span class="p">:</span> <span class="s2">&#34;2.0&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;result&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;context&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;apiVersion&#34;</span><span class="p">:</span> <span class="s2">&#34;2.1.11&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;slot&#34;</span><span class="p">:</span> <span class="mi">321209360</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;blockhash&#34;</span><span class="p">:</span> <span class="s2">&#34;5DaZQ31DNGTrYP5oRtxTuHkH5syp7Ky39Yax7NHgphGd&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;lastValidBlockHeight&#34;</span><span class="p">:</span> <span class="mi">299480762</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="获取创建地址的地址最小租金">获取创建地址的地址最小租金
+</h4><ul>
+<li>Request</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">curl --location <span class="s1">&#39;https://api.mainnet-beta.solana.com&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl">  --header <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl">  --data <span class="s1">&#39;{
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;jsonrpc&#34;: &#34;2.0&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;id&#34;: 1,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;method&#34;: &#34;getMinimumBalanceForRentExemption&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;params&#34;: [50]
+</span></span></span><span class="line"><span class="cl"><span class="s1">  }&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>Response</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;jsonrpc&#34;</span><span class="p">:</span> <span class="s2">&#34;2.0&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;result&#34;</span><span class="p">:</span> <span class="mi">890880</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="发送交易到区块链网络">发送交易到区块链网络
+</h4><ul>
+<li>request</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">curl --location <span class="s1">&#39;https://api.mainnet-beta.solana.com&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl">  --header <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl">  --data <span class="s1">&#39;{
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;jsonrpc&#34;: &#34;2.0&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;id&#34;: 1,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;method&#34;: &#34;sendTransaction&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;params&#34;: [
+</span></span></span><span class="line"><span class="cl"><span class="s1">      &#34;AROIIxNbNk+PVYN5sWn04M6lTFhMj4F/03ACQXAt9E36p4L08OxodVeh3zNKQithppJHyfwE6jgywkAMzBEkfwcBAAEENIQ5mIu8XY+ujJO0WaoKYq24R+wrtMR66+PEgGtT/pF0VfA375/kCxeSWD0+k6mEbmaxjI5lSeR+XoMdYIVJEOxeiLgvp9U8B/zH9cc9Idvhr5lI/Fpoczm2vgtT3EqdBt324ddloZPZy+FGzut5rBy0he1fWzeROoz1hX7/AKk+p6mGuyJj98BmAFHECXGJI/vRLmmfoF2SK8/mMQ7lMgEDBAECAAAJA+gDAAAAAAAA&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">      {
+</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;encoding&#34;: &#34;base64&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s1">      }
+</span></span></span><span class="line"><span class="cl"><span class="s1">    ]
+</span></span></span><span class="line"><span class="cl"><span class="s1">  }&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>Response</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;jsonrpc&#34;</span><span class="p">:</span> <span class="s2">&#34;2.0&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;result&#34;</span><span class="p">:</span> <span class="s2">&#34;5i2vTYwnjcBPLUACjk2TyxPsfv61WzwzkBBkcHLXjnVHKaYGnE1QNbj6QYf1nhmu9f8vWrnSHG8V3GdL222cMDtM&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="Uchiha1024/Uchiha1024.github.io"
+        issue-term="pathname"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    let utterancesLoaded = false;
+
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+
+        
+        utterancesLoaded = true;
+        setUtterancesTheme(document.documentElement.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (!utterancesLoaded) return;
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2025 - 
+        
+        2026 Vince
+    </section>
+    
+    <section class="powerby">
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 构建 <br />
+        主题 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.33.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 设计
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+    
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<div id="particles-js"></div>
+
+<script src=https://Uchiha1024.github.io/background/particles.min.js></script>
+<script>
+  particlesJS.load('particles-js', "https://Uchiha1024.github.io/background/particlesjs-config.json", function() {
+    console.log('particles.js loaded - callback');
+  });
+</script>
+
+<style>
+  #particles-js {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: -1;
+  }
+</style>
+
+    </body>
+</html>
